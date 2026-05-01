@@ -1,0 +1,62 @@
+# KaramSMP Configuration
+
+# Database Configuration
+database:
+  type: "sqlite"
+  sqlite:
+    file: "player-ranks.db"
+    table: "player_ranks"
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "karamsmp"
+    username: "root"
+    password: "password"
+    use-ssl: false
+    table-prefix: "karamsmp_"
+  yaml:
+    file: "player-ranks.yml"
+
+tab:
+  enabled: true
+  update-interval-seconds: 5
+  header:
+    - "&6&lKaramSMP"
+  footer:
+    - "&eMade by Herex._.7"
+
+name-format:
+  display-name: "%karamsmp_ranks_prefix%%player%%karamsmp_ranks_suffix%"
+  tab-list: "%karamsmp_ranks_prefix%%player%%karamsmp_ranks_suffix%"
+  name-tag:
+    enabled: true
+# Chat System
+chat:
+  enabled: true
+  format: "%karamsmp_ranks_prefix%%player%%karamsmp_ranks_suffix%&7: &f%message%"
+
+# Rank system:
+ranks:
+  owner:
+    permission: "karamsmp.rank.owner"
+    prefix: "&c&lOWNER &r&c"
+    suffix: ""
+    priority: 100
+    permissions:
+      - "karamsmp.admin"
+      - "karamsmp.reload"
+      - "karamsmp.admin.ranks"
+      - "karamsmp.helper.gmsp"
+  helper:
+    permission: "karamsmp.rank.helper"
+    prefix: "&b&lHELPER &r&b"
+    suffix: ""
+    priority: 50
+    permissions:
+      - "karamsmp.helper.gmsp"
+  member:
+    permission: ""
+    prefix: "&7"
+    suffix: ""
+    priority: 0
+    permissions: []
