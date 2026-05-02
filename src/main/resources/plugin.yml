@@ -4,7 +4,7 @@ main: me.herex.karmsmp.KaramSMP
 api-version: '1.21'
 author: Herex._.7
 softdepend: [PlaceholderAPI]
-description: Adds /gmsp toggle, configurable TAB, ranks, placeholders, databases, regions, scoreboards, join messages, and /discord.
+description: Adds /gmsp toggle, /nv night vision, configurable TAB, ranks, placeholders, databases, regions, scoreboards, join messages, and /discord.
 commands:
   gmsp:
     description: Toggle yourself between spectator mode and survival mode.
@@ -12,6 +12,11 @@ commands:
     aliases:
       - karamsmpgmsp
       - gsmp
+  nightvision:
+    description: Toggle night vision on or off.
+    usage: /nightvision
+    aliases:
+      - nv
   reload:
     description: Reload the KaramSMP plugin.
     usage: /reload

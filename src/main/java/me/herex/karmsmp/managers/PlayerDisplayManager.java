@@ -9,8 +9,7 @@ import org.bukkit.scoreboard.Team;
 
 public final class PlayerDisplayManager {
 
-    private static final String TEAM_PREFIX = "ks_";
-    private static final String OLD_TEAM_PREFIX = "ksmp_";
+    private static final String TEAM_PREFIX = "ksmp_";
 
     private final KaramSMP plugin;
     private final RankManager rankManager;
@@ -22,61 +21,31 @@ public final class PlayerDisplayManager {
 
     public void updateAllPlayers() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            updatePlayerNames(player);
-        }
-
-        if (plugin.getConfig().getBoolean("name-format.name-tag.enabled", true)
-                || plugin.getConfig().getBoolean("tab.force-rank-priority-sorting", true)) {
-            updateNameTagsForAllViewers();
+            updatePlayer(player);
         }
     }
 
     public void updatePlayer(Player player) {
-        updatePlayerNames(player);
-
-        if (plugin.getConfig().getBoolean("name-format.name-tag.enabled", true)
-                || plugin.getConfig().getBoolean("tab.force-rank-priority-sorting", true)) {
-            updateNameTagsForAllViewers();
-        }
-    }
-
-    public void updateNameTagsForAllViewers() {
-        for (Player viewer : Bukkit.getOnlinePlayers()) {
-            updateNameTagsForViewer(viewer);
-        }
-    }
-
-    public void updateNameTagsForViewer(Player viewer) {
-        if (Bukkit.getScoreboardManager() == null) {
-            return;
-        }
-
-        Scoreboard scoreboard = viewer.getScoreboard();
-        if (scoreboard == null) {
-            scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
-            viewer.setScoreboard(scoreboard);
-        }
-
-        for (Player target : Bukkit.getOnlinePlayers()) {
-            removeFromKaramSMPTeams(scoreboard, target);
-        }
-
-        for (Player target : Bukkit.getOnlinePlayers()) {
-            Rank rank = rankManager.getRank(target);
-            Team team = getOrCreateTeam(scoreboard, rank);
-            team.addEntry(target.getName());
-        }
-    }
-
-    private void updatePlayerNames(Player player) {
         String displayNameFormat = plugin.getConfig().getString("name-format.display-name", "%prefix%%player%%suffix%");
         String tabNameFormat = plugin.getConfig().getString("name-format.tab-list", "%prefix%%player%%suffix%");
 
         player.setDisplayName(rankManager.applyPlaceholders(player, displayNameFormat));
         player.setPlayerListName(rankManager.applyPlaceholders(player, tabNameFormat));
+
+        if (plugin.getConfig().getBoolean("name-format.name-tag.enabled", true)) {
+            applyNameTag(player);
+        }
     }
 
-    private Team getOrCreateTeam(Scoreboard scoreboard, Rank rank) {
+    private void applyNameTag(Player player) {
+        if (Bukkit.getScoreboardManager() == null) {
+            return;
+        }
+
+        Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+        removeFromKaramSMPTeams(scoreboard, player);
+
+        Rank rank = rankManager.getRank(player);
         String teamName = createTeamName(rank);
         Team team = scoreboard.getTeam(teamName);
 
@@ -84,20 +53,15 @@ public final class PlayerDisplayManager {
             team = scoreboard.registerNewTeam(teamName);
         }
 
-        if (plugin.getConfig().getBoolean("name-format.name-tag.enabled", true)) {
-            team.setPrefix(ChatColor.translateAlternateColorCodes('&', rank.getPrefix()));
-            team.setSuffix(ChatColor.translateAlternateColorCodes('&', rank.getSuffix()));
-        } else {
-            team.setPrefix("");
-            team.setSuffix("");
-        }
-        return team;
+        team.setPrefix(ChatColor.translateAlternateColorCodes('&', rank.getPrefix()));
+        team.setSuffix(ChatColor.translateAlternateColorCodes('&', rank.getSuffix()));
+        team.addEntry(player.getName());
+        player.setScoreboard(scoreboard);
     }
 
     private void removeFromKaramSMPTeams(Scoreboard scoreboard, Player player) {
         for (Team team : scoreboard.getTeams()) {
-            if ((team.getName().startsWith(TEAM_PREFIX) || team.getName().startsWith(OLD_TEAM_PREFIX))
-                    && team.hasEntry(player.getName())) {
+            if (team.getName().startsWith(TEAM_PREFIX) && team.hasEntry(player.getName())) {
                 team.removeEntry(player.getName());
             }
         }
@@ -110,8 +74,13 @@ public final class PlayerDisplayManager {
         }
 
         int clampedPriority = Math.max(0, Math.min(999, rank.getPriority()));
-        int sortOrder = 999 - clampedPriority;
-        String priority = String.format("%03d", sortOrder);
+        if (plugin.getConfig().getBoolean("tab.force-rank-priority-sorting", true)) {
+            // Minecraft sorts TAB teams alphabetically. A smaller team name sorts higher,
+            // so invert the priority to force high ranks like owner above helper/member.
+            clampedPriority = 999 - clampedPriority;
+        }
+
+        String priority = String.format("%03d", clampedPriority);
         String teamName = TEAM_PREFIX + priority + "_" + cleanName;
 
         if (teamName.length() > 16) {

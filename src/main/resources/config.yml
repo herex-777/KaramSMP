@@ -64,6 +64,19 @@ discord:
   disabled-message: "&cThe Discord command is disabled."
   no-permission-message: "&cYou don't have permission to use this command!"
 
+
+# Night Vision Command System
+night-vision:
+  enabled: true
+  enabled-message: "&aNight vision enabled."
+  disabled-message: "&cNight vision disabled."
+  command-disabled-message: "&cThe night vision command is disabled."
+  only-players-message: "&cOnly players can use this command."
+  amplifier: 0
+  show-particles: false
+  show-icon: true
+  ambient: false
+
 # Name-Format System
 name-format:
   display-name: "%karamsmp_ranks_prefix%%player%"

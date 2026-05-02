@@ -1,23 +1,28 @@
 package me.herex.karmsmp.scoreboards;
 
 import me.herex.karmsmp.KaramSMP;
-import me.herex.karmsmp.regions.Region;
+import me.herex.karmsmp.managers.Rank;
 import me.herex.karmsmp.utils.MessageUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -26,11 +31,17 @@ import java.util.UUID;
 
 public final class KaramScoreboardManager {
 
+    private static final String OBJECTIVE_NAME = "ksmp";
+    private static final String LINE_TEAM_PREFIX = "ksmpl_";
+    private static final String RANK_TEAM_PREFIX = "ksmpr_";
+
     private final KaramSMP plugin;
-    private final Map<String, KaramScoreboardDefinition> scoreboards = new HashMap<>();
+    private final Map<String, ScoreboardDefinition> scoreboards = new LinkedHashMap<>();
+    private final Map<UUID, Scoreboard> playerBoards = new HashMap<>();
     private final Map<UUID, String> activeScoreboards = new HashMap<>();
     private BukkitTask task;
-    private long ticks;
+    private int tick;
+    private File folder;
 
     public KaramScoreboardManager(KaramSMP plugin) {
         this.plugin = plugin;
@@ -38,17 +49,18 @@ public final class KaramScoreboardManager {
 
     public void start() {
         stop();
-        reloadDefinitions();
+        load();
 
-        if (!plugin.getConfig().getBoolean("scoreboards.enabled", true)) {
+        if (!isEnabled()) {
+            clearAllPlayers();
             return;
         }
 
         long interval = Math.max(1L, plugin.getConfig().getLong("scoreboards.update-interval-ticks", 20L));
         task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            ticks += interval;
+            tick += (int) interval;
             updateAllPlayers();
-        }, 20L, interval);
+        }, 0L, interval);
     }
 
     public void stop() {
@@ -62,26 +74,36 @@ public final class KaramScoreboardManager {
         start();
     }
 
-    public void reloadDefinitions() {
+    public void load() {
         scoreboards.clear();
-        ensureDefaultFiles();
+        ensureFolderAndDefaults();
 
-        File folder = getScoreboardsFolder();
         File[] files = folder.listFiles((dir, name) -> name.toLowerCase(Locale.ROOT).endsWith(".yml") || name.toLowerCase(Locale.ROOT).endsWith(".yaml"));
         if (files == null) {
             return;
         }
 
         for (File file : files) {
-            KaramScoreboardDefinition definition = KaramScoreboardDefinition.load(file);
-            scoreboards.put(definition.getId(), definition);
+            try {
+                ScoreboardDefinition definition = ScoreboardDefinition.fromFile(file);
+                if (!definition.getId().isBlank()) {
+                    scoreboards.put(definition.getId(), definition);
+                }
+            } catch (Exception exception) {
+                plugin.getLogger().warning("Could not load scoreboard file " + file.getName() + ": " + exception.getMessage());
+            }
         }
 
         plugin.getLogger().info("Loaded " + scoreboards.size() + " KaramSMP scoreboard(s).");
     }
 
+    public boolean isEnabled() {
+        return plugin.getConfig().getBoolean("scoreboards.enabled", true);
+    }
+
     public void updateAllPlayers() {
-        if (!plugin.getConfig().getBoolean("scoreboards.enabled", true)) {
+        if (!isEnabled()) {
+            clearAllPlayers();
             return;
         }
 
@@ -91,215 +113,376 @@ public final class KaramScoreboardManager {
     }
 
     public void updatePlayer(Player player) {
-        Optional<KaramScoreboardDefinition> optional = findScoreboard(player);
+        if (player == null || !player.isOnline()) {
+            return;
+        }
+
+        Optional<ScoreboardDefinition> optional = findScoreboard(player);
         if (optional.isEmpty()) {
-            activeScoreboards.remove(player.getUniqueId());
-            if (plugin.getConfig().getBoolean("scoreboards.reset-when-no-match", false) && Bukkit.getScoreboardManager() != null) {
-                player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+            if (plugin.getConfig().getBoolean("scoreboards.clear-when-no-match", plugin.getConfig().getBoolean("scoreboards.reset-when-no-match", true))) {
+                clearPlayer(player);
             }
             return;
         }
 
-        KaramScoreboardDefinition definition = optional.get();
-        activeScoreboards.put(player.getUniqueId(), definition.getId());
-        applyScoreboard(player, definition);
-    }
-
-    public Optional<KaramScoreboardDefinition> findScoreboard(Player player) {
-        List<String> currentRegions = new ArrayList<>();
-        if (plugin.getRegionManager() != null) {
-            currentRegions = plugin.getRegionManager().getRegionsAt(player.getLocation()).stream().map(Region::getName).toList();
-        }
-
-        List<String> finalCurrentRegions = currentRegions;
-        return scoreboards.values().stream()
-                .filter(definition -> definition.matches(player, finalCurrentRegions))
-                .sorted(Comparator.comparingInt(KaramScoreboardDefinition::getPriority).reversed().thenComparing(KaramScoreboardDefinition::getId))
-                .findFirst();
-    }
-
-    public void applyScoreboard(Player player, KaramScoreboardDefinition definition) {
-        if (Bukkit.getScoreboardManager() == null) {
+        ScoreboardDefinition definition = optional.get();
+        Scoreboard scoreboard = getOrCreatePlayerBoard(player, definition.getId());
+        if (scoreboard == null) {
             return;
         }
-
-        Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        String title = trim(plugin.getRankManager().applyPlaceholders(player, definition.getAnimatedTitle(ticks)), 128);
-        Objective objective = scoreboard.registerNewObjective("ksmp", Criteria.DUMMY, title);
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-
-        List<String> lines = definition.getLines();
-        int score = Math.min(lines.size(), 15);
-        int index = 0;
-        for (String rawLine : lines) {
-            if (index >= 15) {
-                break;
-            }
-            String line = plugin.getRankManager().applyPlaceholders(player, rawLine)
-                    .replace("%karamsmp_scoreboard%", definition.getId())
-                    .replace("%karamsmp_scoreboard_id%", definition.getId());
-            objective.getScore(makeUniqueEntry(trim(line, 40), index)).setScore(score--);
-            index++;
-        }
-
+        render(player, scoreboard, definition);
         player.setScoreboard(scoreboard);
-        plugin.getPlayerDisplayManager().updateNameTagsForViewer(player);
+        activeScoreboards.put(player.getUniqueId(), definition.getId());
     }
 
-    public File getScoreboardsFolder() {
-        return new File(plugin.getDataFolder(), plugin.getConfig().getString("scoreboards.folder", "scoreboards"));
+    public void clearPlayer(Player player) {
+        if (player == null) {
+            return;
+        }
+        playerBoards.remove(player.getUniqueId());
+        activeScoreboards.remove(player.getUniqueId());
+        if (Bukkit.getScoreboardManager() != null) {
+            player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+        }
     }
 
-    public List<KaramScoreboardDefinition> getScoreboards() {
+    public void clearAllPlayers() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            clearPlayer(player);
+        }
+        playerBoards.clear();
+        activeScoreboards.clear();
+    }
+
+    public Optional<ScoreboardDefinition> findScoreboard(Player player) {
         return scoreboards.values().stream()
-                .sorted(Comparator.comparingInt(KaramScoreboardDefinition::getPriority).reversed().thenComparing(KaramScoreboardDefinition::getId))
-                .toList();
-    }
-
-    public Optional<KaramScoreboardDefinition> getScoreboard(String id) {
-        return Optional.ofNullable(scoreboards.get(KaramScoreboardDefinition.cleanId(id)));
+                .filter(definition -> definition.matches(player, plugin))
+                .max(Comparator.comparingInt(ScoreboardDefinition::getPriority).thenComparing(ScoreboardDefinition::getId));
     }
 
     public String getActiveScoreboardId(Player player) {
-        return activeScoreboards.getOrDefault(player.getUniqueId(), "none");
+        if (player == null) {
+            return "none";
+        }
+        return activeScoreboards.getOrDefault(player.getUniqueId(), findScoreboard(player).map(ScoreboardDefinition::getId).orElse("none"));
+    }
+
+    public Optional<ScoreboardDefinition> getScoreboard(String id) {
+        return Optional.ofNullable(scoreboards.get(ScoreboardDefinition.cleanId(id)));
+    }
+
+    public List<ScoreboardDefinition> getScoreboards() {
+        return scoreboards.values().stream()
+                .sorted(Comparator.comparingInt(ScoreboardDefinition::getPriority).reversed().thenComparing(ScoreboardDefinition::getId))
+                .toList();
     }
 
     public boolean createScoreboard(String id) {
-        String cleanId = KaramScoreboardDefinition.cleanId(id);
-        File file = new File(getScoreboardsFolder(), cleanId + ".yml");
+        String cleanId = ScoreboardDefinition.cleanId(id);
+        if (cleanId.isBlank() || getScoreboard(cleanId).isPresent()) {
+            return false;
+        }
+
+        File file = getScoreboardFile(cleanId);
         if (file.exists()) {
             return false;
         }
 
-        YamlConfiguration yaml = new YamlConfiguration();
-        yaml.set("id", cleanId);
-        yaml.set("enabled", true);
-        yaml.set("priority", 0);
-        yaml.set("permission", "");
-        yaml.set("worlds", new ArrayList<String>());
-        yaml.set("regions", new ArrayList<String>());
-        yaml.set("title-animation.enabled", true);
-        yaml.set("title-animation.interval-ticks", 10);
-        yaml.set("title-animation.frames", List.of("&6&lKaramSMP", "&e&lKaramSMP"));
-        yaml.set("lines", List.of("&7&m----------------", "&fPlayer: &e%player%", "&fRank: %karamsmp_ranks_prefix%", "&7&m----------------"));
-        return saveYaml(file, yaml);
+        YamlConfiguration config = new YamlConfiguration();
+        config.set("id", cleanId);
+        config.set("enabled", true);
+        config.set("priority", 0);
+        config.set("permission", "");
+        config.set("worlds", new ArrayList<String>());
+        config.set("regions", new ArrayList<String>());
+        config.set("title.frames", List.of("&6&lKaramSMP", "&e&lKaramSMP"));
+        config.set("animation.title-speed-ticks", 10);
+        config.set("animation.line-speed-ticks", 20);
+        config.set("lines", List.of(
+                "&7&m----------------",
+                "&fPlayer: &e%player%",
+                "&fRank: %karamsmp_ranks_prefix%",
+                "&fWorld: &e%world%",
+                "&fRegion: &e%karamsmp_region%",
+                "&7&m----------------"
+        ));
+        return saveAndReload(file, config);
     }
 
     public boolean deleteScoreboard(String id) {
-        Optional<KaramScoreboardDefinition> definition = getScoreboard(id);
-        return definition.filter(scoreboardDefinition -> scoreboardDefinition.getFile().delete()).isPresent();
+        Optional<ScoreboardDefinition> optional = getScoreboard(id);
+        if (optional.isEmpty()) {
+            return false;
+        }
+        boolean deleted = optional.get().getSourceFile().delete();
+        reload();
+        return deleted;
     }
 
-    public boolean setValue(String id, String path, Object value) {
-        Optional<KaramScoreboardDefinition> definition = getScoreboard(id);
-        if (definition.isEmpty()) {
-            return false;
-        }
-        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(definition.get().getFile());
-        yaml.set(path, value);
-        return saveYaml(definition.get().getFile(), yaml);
+    public boolean setEnabled(String id, boolean enabled) {
+        return edit(id, config -> config.set("enabled", enabled));
     }
 
-    public boolean addToList(String id, String path, String value) {
-        Optional<KaramScoreboardDefinition> definition = getScoreboard(id);
-        if (definition.isEmpty()) {
-            return false;
-        }
-        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(definition.get().getFile());
-        List<String> list = new ArrayList<>(yaml.getStringList(path));
-        if (!list.contains(value)) {
-            list.add(value);
-        }
-        yaml.set(path, list);
-        return saveYaml(definition.get().getFile(), yaml);
+    public boolean setPermission(String id, String permission) {
+        return edit(id, config -> config.set("permission", permission == null || permission.equalsIgnoreCase("none") ? "" : permission));
     }
 
-    public boolean removeFromList(String id, String path, String value) {
-        Optional<KaramScoreboardDefinition> definition = getScoreboard(id);
-        if (definition.isEmpty()) {
-            return false;
-        }
-        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(definition.get().getFile());
-        List<String> list = new ArrayList<>(yaml.getStringList(path));
-        boolean removed = list.removeIf(saved -> saved.equalsIgnoreCase(value));
-        yaml.set(path, list);
-        return removed && saveYaml(definition.get().getFile(), yaml);
+    public boolean setPriority(String id, int priority) {
+        return edit(id, config -> config.set("priority", priority));
     }
 
-    public boolean setLine(String id, int lineNumber, String value) {
-        Optional<KaramScoreboardDefinition> definition = getScoreboard(id);
-        if (definition.isEmpty() || lineNumber < 1) {
+    public boolean setTitle(String id, String title) {
+        return edit(id, config -> {
+            config.set("title.frames", null);
+            config.set("title", title);
+        });
+    }
+
+    public boolean addWorld(String id, String world) {
+        return addToList(id, "worlds", world);
+    }
+
+    public boolean removeWorld(String id, String world) {
+        return removeFromList(id, "worlds", world);
+    }
+
+    public boolean addRegion(String id, String region) {
+        return addToList(id, "regions", region);
+    }
+
+    public boolean removeRegion(String id, String region) {
+        return removeFromList(id, "regions", region);
+    }
+
+    public boolean addLine(String id, String line) {
+        Optional<ScoreboardDefinition> optional = getScoreboard(id);
+        if (optional.isEmpty()) {
             return false;
         }
-        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(definition.get().getFile());
-        List<String> lines = new ArrayList<>(yaml.getStringList("lines"));
-        if (lineNumber > lines.size()) {
+        File file = optional.get().getSourceFile();
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+        List<String> lines = new ArrayList<>(config.getStringList("lines"));
+        if (lines.size() >= 15) {
             return false;
         }
-        lines.set(lineNumber - 1, value);
-        yaml.set("lines", lines);
-        return saveYaml(definition.get().getFile(), yaml);
+        lines.add(line);
+        config.set("lines", lines);
+        return saveAndReload(file, config);
+    }
+
+    public boolean setLine(String id, int lineNumber, String line) {
+        Optional<ScoreboardDefinition> optional = getScoreboard(id);
+        if (optional.isEmpty()) {
+            return false;
+        }
+        File file = optional.get().getSourceFile();
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+        List<String> lines = new ArrayList<>(config.getStringList("lines"));
+        int index = lineNumber - 1;
+        if (index < 0 || index >= lines.size()) {
+            return false;
+        }
+        lines.set(index, line);
+        config.set("lines", lines);
+        return saveAndReload(file, config);
     }
 
     public boolean removeLine(String id, int lineNumber) {
-        Optional<KaramScoreboardDefinition> definition = getScoreboard(id);
-        if (definition.isEmpty() || lineNumber < 1) {
+        Optional<ScoreboardDefinition> optional = getScoreboard(id);
+        if (optional.isEmpty()) {
             return false;
         }
-        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(definition.get().getFile());
-        List<String> lines = new ArrayList<>(yaml.getStringList("lines"));
-        if (lineNumber > lines.size()) {
+        File file = optional.get().getSourceFile();
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+        List<String> lines = new ArrayList<>(config.getStringList("lines"));
+        int index = lineNumber - 1;
+        if (index < 0 || index >= lines.size()) {
             return false;
         }
-        lines.remove(lineNumber - 1);
-        yaml.set("lines", lines);
-        return saveYaml(definition.get().getFile(), yaml);
+        lines.remove(index);
+        config.set("lines", lines);
+        return saveAndReload(file, config);
     }
 
-    private void ensureDefaultFiles() {
-        File folder = getScoreboardsFolder();
-        if (!folder.exists()) {
-            folder.mkdirs();
+    private interface ConfigEdit {
+        void apply(YamlConfiguration config);
+    }
+
+    private boolean edit(String id, ConfigEdit edit) {
+        Optional<ScoreboardDefinition> optional = getScoreboard(id);
+        if (optional.isEmpty()) {
+            return false;
         }
-
-        saveResourceIfMissing("scoreboards/default.yml");
-        saveResourceIfMissing("scoreboards/spawn.yml");
-        saveResourceIfMissing("scoreboards/staff.yml");
-        saveResourceIfMissing("scoreboards/nether.yml");
+        File file = optional.get().getSourceFile();
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+        edit.apply(config);
+        return saveAndReload(file, config);
     }
 
-    private void saveResourceIfMissing(String path) {
-        File target = new File(plugin.getDataFolder(), path);
-        if (!target.exists()) {
-            plugin.saveResource(path, false);
+    private boolean addToList(String id, String path, String value) {
+        if (value == null || value.isBlank()) {
+            return false;
         }
-    }
-
-    private boolean saveYaml(File file, YamlConfiguration yaml) {
-        try {
-            File parent = file.getParentFile();
-            if (parent != null && !parent.exists()) {
-                parent.mkdirs();
+        return edit(id, config -> {
+            List<String> values = new ArrayList<>(config.getStringList(path));
+            if (values.stream().noneMatch(saved -> saved.equalsIgnoreCase(value))) {
+                values.add(value);
             }
-            yaml.save(file);
-            reloadDefinitions();
-            updateAllPlayers();
+            config.set(path, values);
+        });
+    }
+
+    private boolean removeFromList(String id, String path, String value) {
+        return edit(id, config -> {
+            List<String> values = new ArrayList<>(config.getStringList(path));
+            values.removeIf(saved -> saved.equalsIgnoreCase(value));
+            config.set(path, values);
+        });
+    }
+
+    private boolean saveAndReload(File file, YamlConfiguration config) {
+        try {
+            config.save(file);
+            reload();
             return true;
         } catch (IOException exception) {
-            plugin.getLogger().warning("Could not save scoreboard file: " + exception.getMessage());
+            plugin.getLogger().warning("Could not save scoreboard file " + file.getName() + ": " + exception.getMessage());
             return false;
         }
     }
 
-    private String makeUniqueEntry(String line, int index) {
-        return line + ChatColor.RESET + String.valueOf(ChatColor.COLOR_CHAR) + Integer.toHexString(index);
+    private Scoreboard getOrCreatePlayerBoard(Player player, String definitionId) {
+        UUID uuid = player.getUniqueId();
+        String active = activeScoreboards.get(uuid);
+        Scoreboard board = playerBoards.get(uuid);
+        if (board == null || active == null || !active.equals(definitionId)) {
+            if (Bukkit.getScoreboardManager() == null) {
+                return null;
+            }
+            board = Bukkit.getScoreboardManager().getNewScoreboard();
+            playerBoards.put(uuid, board);
+            activeScoreboards.put(uuid, definitionId);
+        }
+        return board;
     }
 
-    private String trim(String input, int maxLength) {
-        String colored = MessageUtil.color(input == null ? "" : input);
-        if (colored.length() <= maxLength) {
-            return colored;
+    private void render(Player viewer, Scoreboard scoreboard, ScoreboardDefinition definition) {
+        clearOldSidebar(scoreboard);
+        applyRankTeams(scoreboard);
+
+        String title = definition.renderTitle(viewer, plugin, tick);
+        Objective objective = scoreboard.registerNewObjective(OBJECTIVE_NAME, "dummy", title);
+        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+        List<String> lines = definition.renderLines(viewer, plugin, tick);
+        int score = lines.size();
+        for (int index = 0; index < lines.size() && index < 15; index++) {
+            String entry = uniqueEntry(index);
+            Team team = scoreboard.registerNewTeam(LINE_TEAM_PREFIX + index);
+            team.addEntry(entry);
+            team.setPrefix(lines.get(index));
+            objective.getScore(entry).setScore(score--);
         }
-        return colored.substring(0, maxLength);
+    }
+
+    private void clearOldSidebar(Scoreboard scoreboard) {
+        Objective objective = scoreboard.getObjective(OBJECTIVE_NAME);
+        if (objective != null) {
+            objective.unregister();
+        }
+        for (Team team : new ArrayList<>(scoreboard.getTeams())) {
+            if (team.getName().startsWith(LINE_TEAM_PREFIX) || team.getName().startsWith(RANK_TEAM_PREFIX)) {
+                team.unregister();
+            }
+        }
+    }
+
+    private void applyRankTeams(Scoreboard scoreboard) {
+        for (Player target : Bukkit.getOnlinePlayers()) {
+            Rank rank = plugin.getRankManager().getRank(target);
+            String teamName = createRankTeamName(rank);
+            Team team = scoreboard.getTeam(teamName);
+            if (team == null) {
+                team = scoreboard.registerNewTeam(teamName);
+            }
+            team.setPrefix(MessageUtil.color(rank.getPrefix()));
+            team.setSuffix(MessageUtil.color(rank.getSuffix()));
+            team.addEntry(target.getName());
+        }
+    }
+
+    private String createRankTeamName(Rank rank) {
+        String cleanName = rank.getName().replaceAll("[^A-Za-z0-9_]", "").toLowerCase(Locale.ROOT);
+        if (cleanName.isBlank()) {
+            cleanName = "rank";
+        }
+        String priority = String.format("%03d", Math.max(0, Math.min(999, rank.getPriority())));
+        String teamName = RANK_TEAM_PREFIX + priority + cleanName;
+        if (teamName.length() > 16) {
+            teamName = teamName.substring(0, 16);
+        }
+        return teamName;
+    }
+
+    private String uniqueEntry(int index) {
+        ChatColor[] values = ChatColor.values();
+        return values[Math.floorMod(index, values.length)].toString() + ChatColor.RESET;
+    }
+
+    private void ensureFolderAndDefaults() {
+        folder = new File(plugin.getDataFolder(), plugin.getConfig().getString("scoreboards.folder", "scoreboards"));
+        if (!folder.exists() && !folder.mkdirs()) {
+            plugin.getLogger().warning("Could not create scoreboards folder.");
+        }
+
+        if (!hasScoreboardFiles()) {
+            saveDefaultScoreboard("scoreboards/default.yml");
+            saveDefaultScoreboard("scoreboards/spawn.yml");
+            saveDefaultScoreboard("scoreboards/staff.yml");
+            saveDefaultScoreboard("scoreboards/nether.yml");
+        }
+    }
+
+    private boolean hasScoreboardFiles() {
+        File[] files = folder.listFiles((dir, name) -> name.toLowerCase(Locale.ROOT).endsWith(".yml") || name.toLowerCase(Locale.ROOT).endsWith(".yaml"));
+        return files != null && files.length > 0;
+    }
+
+    private void saveDefaultScoreboard(String resourcePath) {
+        String fileName = new File(resourcePath).getName();
+        File target = new File(folder, fileName);
+        if (target.exists()) {
+            return;
+        }
+
+        try (InputStream inputStream = plugin.getResource(resourcePath)) {
+            if (inputStream != null) {
+                Files.copy(inputStream, target.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                return;
+            }
+        } catch (IOException exception) {
+            plugin.getLogger().warning("Could not copy default scoreboard " + fileName + ": " + exception.getMessage());
+        }
+
+        YamlConfiguration fallback = new YamlConfiguration();
+        String id = fileName.replaceFirst("(?i)\\.ya?ml$", "");
+        fallback.set("id", id);
+        fallback.set("enabled", true);
+        fallback.set("priority", 0);
+        fallback.set("permission", "");
+        fallback.set("worlds", new ArrayList<String>());
+        fallback.set("regions", new ArrayList<String>());
+        fallback.set("title.frames", List.of("&6&lKaramSMP", "&e&lKaramSMP"));
+        fallback.set("lines", List.of("&7&m----------------", "&fPlayer: &e%player%", "&fRank: %karamsmp_ranks_prefix%", "&7&m----------------"));
+        try {
+            fallback.save(target);
+        } catch (IOException exception) {
+            plugin.getLogger().warning("Could not create default scoreboard " + fileName + ": " + exception.getMessage());
+        }
+    }
+
+    private File getScoreboardFile(String id) {
+        ensureFolderAndDefaults();
+        return new File(folder, ScoreboardDefinition.cleanId(id) + ".yml");
     }
 }

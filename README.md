@@ -1,19 +1,16 @@
 # KaramSMP
 
-KaramSMP is a Paper 1.21.11 plugin made for Herex._.7.
+KaramSMP is a Paper 1.21.11 plugin made by Herex._.7.
 
-Version: `0.2`
-Group ID: `me.herex`
-Artifact ID: `karmsmp`
+It includes:
 
-## Features
-
-- `/gmsp` toggle command with `karamsmp.helper.gmsp` permission: switches to spectator, then back to survival when used again.
-- Configurable TAB header/footer.
-- Rank prefix/suffix system.
-- PlaceholderAPI hook.
-- SQLite, MySQL, or YAML rank storage.
-- WorldGuard-style regions with selectable cuboids and protection flags.
+- `/gmsp` spectator/survival toggle
+- Configurable TAB header/footer
+- Rank prefixes and suffixes
+- PlaceholderAPI support
+- SQLite, MySQL, and YAML rank storage
+- WorldGuard-style regions
+- Animated configurable scoreboards from a `scoreboards/` folder
 
 ## Build
 
@@ -21,281 +18,291 @@ Artifact ID: `karmsmp`
 mvn clean package
 ```
 
-The built plugin will be:
+The plugin jar will be created here:
 
 ```text
 target/KaramSMP-0.2.jar
 ```
 
-Put the JAR into your server `plugins` folder and restart the server.
+Put the jar in your server `plugins` folder and restart the server.
 
-## Database config
+## Game mode command
 
-`config.yml` supports:
-
-```yaml
-database:
-  type: "sqlite" # sqlite, mysql, or yaml
+```text
+/gmsp
+/gsmp
 ```
 
-SQLite is the default and creates `plugins/KaramSMP/player-ranks.db`.
+This command toggles the player:
+
+- not spectator -> spectator
+- spectator -> survival
+
+Permission:
+
+```text
+karamsmp.helper.gmsp
+```
+
+## Reload command
+
+```text
+/reload
+/ksmpreload
+/karamsmpreload
+```
+
+Permission:
+
+```text
+karamsmp.reload
+```
 
 ## Rank commands
 
-Base command: `/rank`
-Aliases: `/ranks`, `/ksmprank`
-Permission: `karamsmp.admin.ranks`
-
-- `/rank help` - Shows rank help.
-- `/rank list` - Lists all ranks.
-- `/rank info <rank>` - Shows rank prefix, suffix, priority, permission, and granted permissions.
-- `/rank set <player> <rank>` - Saves a player's rank.
-- `/rank clear <player>` - Removes a saved player rank.
-- `/rank create <rank> <permission> <priority>` - Creates a rank in `config.yml`.
-- `/rank remove <rank>` - Removes a rank from `config.yml`.
-- `/rank setprefix <rank> <prefix>` - Changes the prefix.
-- `/rank setsuffix <rank> <suffix>` - Changes the suffix.
-- `/rank addperm <rank> <permission>` - Adds a permission to a rank.
-- `/rank delperm <rank> <permission>` - Removes a permission from a rank.
-
-## Placeholders
-
-These work inside KaramSMP config text:
-
-- `%player%`
-- `%displayname%`
-- `%rank%`
-- `%prefix%`
-- `%suffix%`
-- `%online%`
-- `%max_players%`
-- `%world%`
-- `%gamemode%`
-- `%karamsmp_rank%`
-- `%karamsmp_ranks_prefix%`
-- `%karamsmp_ranks_suffix%`
-- `%karamsmp_saved_rank%`
-- `%karamsmp_rank_priority%`
-- `%karamsmp_rank_permission%`
-- `%karamsmp_rank_permissions%`
-- `%karamsmp_region%`
-- `%karamsmp_regions%`
-- `%karamsmp_region_count%`
-
-If PlaceholderAPI is installed, these can also be used through PlaceholderAPI as `%karamsmp_*%` placeholders.
-
-## Region system
-
-Regions are cuboids saved in:
-
 ```text
-plugins/KaramSMP/regions.yml
+/rank list
+/rank info <rank>
+/rank set <player> <rank>
+/rank clear <player>
+/rank create <rank> <permission> <priority>
+/rank remove <rank>
+/rank setprefix <rank> <prefix>
+/rank setsuffix <rank> <suffix>
+/rank addperm <rank> <permission>
+/rank delperm <rank> <permission>
 ```
 
-The region system protects areas using flags. `true` means the action is allowed. `false` means the action is blocked.
-
-Example:
+Permission:
 
 ```text
-/region flag spawn block-break false
-/region flag spawn pvp false
-/region flag spawn fall-damage false
+karamsmp.admin.ranks
 ```
 
 ## Region commands
 
-Base command: `/region`
-Aliases: `/regions`, `/rg`
-Admin permission: `karamsmp.regions.admin`
-Bypass permission: `karamsmp.regions.bypass`
-
-### Selection and creation
-
-- `/region wand` - Gives the region wand.
-- Left click a block with the wand - Sets position 1.
-- Right click a block with the wand - Sets position 2.
-- `/region pos1` - Sets position 1 to your current block.
-- `/region pos2` - Sets position 2 to your current block.
-- `/region create <name>` - Creates a region from your selection.
-- `/region redefine <name>` - Replaces a region's area with your current selection.
-
-### Region management
-
-- `/region delete <name>` - Deletes a region.
-- `/region rename <old> <new>` - Renames a region.
-- `/region list [page]` - Lists regions.
-- `/region info <name>` - Shows region info.
-- `/region here` - Shows regions at your current location.
-- `/region tp <name>` - Teleports to the center of a region.
-- `/region save` - Saves `regions.yml`.
-- `/region reload` - Reloads `regions.yml`.
-
-### Flags
-
-- `/region flags` - Lists all available flags.
-- `/region flags <name>` - Shows flags for one region.
-- `/region flag <name> <flag> <true|false>` - Sets a flag.
-- `/region flag <name> <flag> reset` - Resets a flag to config defaults.
-
-Available flags:
-
-- `block-break` - Allow or block block breaking.
-- `block-place` - Allow or block block placing.
-- `pvp` - Allow or block PvP.
-- `fall-damage` - Allow or block fall damage.
-- `interact` - Allow or block block interaction.
-- `chest-access` - Allow or block containers.
-- `item-drop` - Allow or block dropping items.
-- `item-pickup` - Allow or block picking up items.
-- `mob-spawning` - Allow or block mob spawning.
-- `explosions` - Allow or block explosions from damaging blocks.
-- `fire-spread` - Allow or block fire spread/burn/ignite.
-- `entry` - Allow or block entering a region.
-- `exit` - Allow or block leaving a region.
-
-### Owners and members
-
-Owners and members can be allowed to bypass build/interact protection with these config settings:
-
-```yaml
-regions:
-  members:
-    bypass-build-flags: true
-    bypass-interact-flags: true
+```text
+/region wand
+/region pos1
+/region pos2
+/region create <name>
+/region delete <name>
+/region list
+/region info <name>
+/region here
+/region flags
+/region flags <name>
+/region flag <name> <flag> <true|false|reset>
+/region owner add <region> <player>
+/region owner remove <region> <player>
+/region member add <region> <player>
+/region member remove <region> <player>
+/region priority <region> <priority>
+/region redefine <region>
+/region expand <region> <up|down|north|south|east|west|vertical> <amount>
+/region contract <region> <up|down|north|south|east|west> <amount>
+/region message <region> greeting <message>
+/region message <region> farewell <message>
+/region rename <old> <new>
+/region tp <region>
+/region save
+/region reload
 ```
 
-Commands:
+Main permission:
 
-- `/region owner add <region> <player>`
-- `/region owner remove <region> <player>`
-- `/region member add <region> <player>`
-- `/region member remove <region> <player>`
-
-### Priority and resizing
-
-Higher priority regions win when regions overlap.
-
-- `/region priority <region> <priority>`
-- `/region expand <region> <up|down|north|south|east|west|vertical> <amount>`
-- `/region contract <region> <up|down|north|south|east|west> <amount>`
-
-### Messages
-
-- `/region message <region> greeting <message>`
-- `/region message <region> farewell <message>`
-- `/region message <region> greeting clear`
-- `/region message <region> farewell clear`
-
-Messages support placeholders like `%player%`, `%region%`, `%karamsmp_ranks_prefix%`, and `%karamsmp_rank%`.
-
-## Reload command
-
-- `/reload` - Reloads KaramSMP config, ranks, storage, TAB, and regions.
-- Aliases: `/ksmpreload`, `/karamsmpreload`
-- Permission: `karamsmp.reload`
-
-Note: `/reload` can conflict with the server's built-in reload command. If that happens, use `/ksmpreload` or `/karamsmpreload`.
-
-## TAB rank priority fix
-
-KaramSMP now forces TAB order using scoreboard teams with inverted rank priority.
-Higher priority numbers sort first.
-
-Example from `config.yml`:
-
-```yaml
-ranks:
-  owner:
-    priority: 9
-  helper:
-    priority: 1
+```text
+karamsmp.regions.admin
 ```
 
-Owner will show above helper in TAB.
+Bypass permission:
 
-You can keep this enabled with:
-
-```yaml
-tab:
-  force-rank-priority-sorting: true
+```text
+karamsmp.regions.bypass
 ```
 
-## Join and quit messages
+### Region flags
 
-Custom join and quit messages are editable in `config.yml`:
-
-```yaml
-join-messages:
-  enabled: true
-  message: "&8[&a+&8] %karamsmp_ranks_prefix%%player% &7joined the server."
-  first-join-enabled: true
-  first-join-message: "&8[&a+&8] %karamsmp_ranks_prefix%%player% &7joined for the first time. &eWelcome!"
-
-quit-messages:
-  enabled: true
-  message: "&8[&c-&8] %karamsmp_ranks_prefix%%player% &7left the server."
+```text
+block-break
+block-place
+pvp
+fall-damage
+interact
+chest-access
+item-drop
+item-pickup
+mob-spawning
+explosions
+fire-spread
+entry
+exit
 ```
 
-Set the message to an empty string to hide it.
+`true` means allowed and `false` means blocked.
 
-## Discord command
+Example spawn protection:
 
-Base command: `/discord`
-Aliases: `/dc`, `/disc`, `/serverdiscord`
-
-Config:
-
-```yaml
-discord:
-  enabled: true
-  permission: ""
-  invite: "https://discord.gg/yourserver"
-  command-aliases:
-    - "discord"
-    - "dc"
-    - "disc"
-  message:
-    - "&9&lDiscord"
-    - "&7Join our Discord: &b%discord_invite%"
+```text
+/region wand
 ```
 
-Leave `permission` empty to allow everyone, or set it to `karamsmp.discord` to require permission.
+Select two corners, then run:
 
-## Scoreboards
+```text
+/region create spawn
+/region flag spawn block-break false
+/region flag spawn block-place false
+/region flag spawn pvp false
+/region flag spawn fall-damage false
+/region flag spawn explosions false
+/region flag spawn fire-spread false
+```
 
-Scoreboard files are stored in:
+## Scoreboard system
+
+Scoreboards are saved in:
 
 ```text
 plugins/KaramSMP/scoreboards/
 ```
 
-Default files included:
+The project includes these default scoreboard files:
 
-- `default.yml`
-- `spawn.yml`
-- `staff.yml`
-- `nether.yml`
+```text
+scoreboards/default.yml
+scoreboards/spawn.yml
+scoreboards/staff.yml
+scoreboards/nether.yml
+```
 
-Base command: `/kscoreboard`
-Aliases: `/scoreboards`, `/sb`, `/karamsmpscoreboard`
-Permission: `karamsmp.scoreboards.admin`
+Each file can target:
 
-Commands:
+- all players
+- one or more worlds
+- one or more KaramSMP regions
+- only players with a permission
 
-- `/kscoreboard reload`
-- `/kscoreboard list`
-- `/kscoreboard info <id>`
-- `/kscoreboard create <id>`
-- `/kscoreboard delete <id>`
-- `/kscoreboard enable <id>`
-- `/kscoreboard disable <id>`
-- `/kscoreboard setpermission <id> <permission|none>`
-- `/kscoreboard setpriority <id> <number>`
-- `/kscoreboard addworld <id> <world>`
-- `/kscoreboard removeworld <id> <world>`
-- `/kscoreboard addregion <id> <region>`
-- `/kscoreboard removeregion <id> <region>`
-- `/kscoreboard settitle <id> <title>`
-- `/kscoreboard addline <id> <line>`
-- `/kscoreboard setline <id> <line-number> <line>`
-- `/kscoreboard removeline <id> <line-number>`
+The plugin chooses the matching scoreboard with the highest `priority`.
+
+### Example scoreboard file
+
+```yaml
+id: "staff"
+enabled: true
+priority: 100
+permission: "karamsmp.scoreboard.staff"
+worlds: []
+regions: []
+title:
+  frames:
+    - "&c&lSTAFF"
+    - "&4&lSTAFF MODE"
+animation:
+  title-speed-ticks: 8
+  line-speed-ticks: 20
+lines:
+  - "&7&m----------------"
+  - "&fName: &e%player%"
+  - "&fRank: %karamsmp_ranks_prefix%"
+  - "&fWorld: &e%world%"
+  - "&fRegion: &e%karamsmp_region%"
+  - "&7&m----------------"
+animated-lines:
+  5:
+    - "&fRegion: &e%karamsmp_region%"
+    - "&fScoreboard: &e%karamsmp_scoreboard%"
+```
+
+### Scoreboard commands
+
+```text
+/kscoreboard help
+/kscoreboard reload
+/kscoreboard list
+/kscoreboard info <id>
+/kscoreboard create <id>
+/kscoreboard delete <id>
+/kscoreboard enable <id>
+/kscoreboard disable <id>
+/kscoreboard setpermission <id> <permission|none>
+/kscoreboard setpriority <id> <number>
+/kscoreboard addworld <id> <world>
+/kscoreboard removeworld <id> <world>
+/kscoreboard addregion <id> <region>
+/kscoreboard removeregion <id> <region>
+/kscoreboard settitle <id> <text>
+/kscoreboard addline <id> <text>
+/kscoreboard setline <id> <line> <text>
+/kscoreboard removeline <id> <line>
+```
+
+Permission:
+
+```text
+karamsmp.scoreboards.admin
+```
+
+### Permission-only scoreboards
+
+Set this inside a scoreboard `.yml` file:
+
+```yaml
+permission: "karamsmp.scoreboard.vip"
+```
+
+Only players with that permission can see that scoreboard.
+
+## Placeholders
+
+Internal placeholders:
+
+```text
+%player%
+%displayname%
+%rank%
+%prefix%
+%suffix%
+%online%
+%max_players%
+%world%
+%gamemode%
+%karamsmp_rank%
+%karamsmp_ranks_prefix%
+%karamsmp_ranks_suffix%
+%karamsmp_saved_rank%
+%karamsmp_rank_priority%
+%karamsmp_rank_permission%
+%karamsmp_rank_permissions%
+%karamsmp_region%
+%karamsmp_regions%
+%karamsmp_region_count%
+%karamsmp_scoreboard%
+%karamsmp_scoreboard_id%
+```
+
+PlaceholderAPI placeholders also work if PlaceholderAPI is installed.
+
+## Night Vision Toggle
+
+Any player can use these commands without any permission:
+
+- `/nightvision`
+- `/nv`
+
+Running the command once gives the player night vision. Running it again removes night vision.
+
+Messages and visual options are editable in `config.yml`:
+
+```yaml
+night-vision:
+  enabled: true
+  enabled-message: "&aNight vision enabled."
+  disabled-message: "&cNight vision disabled."
+  command-disabled-message: "&cThe night vision command is disabled."
+  only-players-message: "&cOnly players can use this command."
+  amplifier: 0
+  show-particles: false
+  show-icon: true
+  ambient: false
+```

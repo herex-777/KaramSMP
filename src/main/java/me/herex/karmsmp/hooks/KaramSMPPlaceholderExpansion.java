@@ -63,7 +63,7 @@ public final class KaramSMPPlaceholderExpansion extends PlaceholderExpansion {
             case "region", "top_region", "regions_top" -> plugin.getRegionManager() == null ? "none" : plugin.getRegionManager().getTopRegionPlaceholder(player);
             case "regions", "region_list", "regions_list" -> plugin.getRegionManager() == null ? "none" : plugin.getRegionManager().getRegionsPlaceholder(player);
             case "region_count", "regions_count" -> plugin.getRegionManager() == null ? "0" : plugin.getRegionManager().getRegionCountPlaceholder(player);
-            case "scoreboard", "scoreboard_id" -> plugin.getScoreboardManager() == null ? "none" : plugin.getScoreboardManager().getActiveScoreboardId(player);
+            case "scoreboard", "scoreboard_id" -> plugin.getKaramScoreboardManager() == null ? "none" : plugin.getKaramScoreboardManager().getActiveScoreboardId(player);
             default -> null;
         };
     }

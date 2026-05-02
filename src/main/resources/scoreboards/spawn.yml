@@ -1,22 +1,30 @@
 id: "spawn"
 enabled: true
+# Higher priority than default, so it shows inside the spawn region.
 priority: 50
 permission: ""
 worlds: []
 regions:
   - "spawn"
-
-title-animation:
-  enabled: true
-  interval-ticks: 8
+title:
   frames:
-    - "&a&lSPAWN"
+    - "&a&lSAFE ZONE"
     - "&2&lSPAWN"
-
+animation:
+  title-speed-ticks: 12
+  line-speed-ticks: 20
 lines:
-  - "&8&m----------------"
-  - "&aYou are in Spawn"
+  - "&7&m----------------"
   - "&fPlayer: &e%player%"
   - "&fRank: %karamsmp_ranks_prefix%"
-  - "&fPlayers: &a%online%&7/&a%max_players%"
-  - "&8&m----------------"
+  - "&fRegion: &a%karamsmp_region%"
+  - "&fPvP: &cDisabled"
+  - "&fBuild: &cProtected"
+  - ""
+  - "&aWelcome to spawn!"
+  - "&7&m----------------"
+animated-lines:
+  8:
+    - "&aWelcome to spawn!"
+    - "&eUse /region info spawn"
+    - "&bHave fun!"

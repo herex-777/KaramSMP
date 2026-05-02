@@ -66,6 +66,9 @@ public final class RankManager {
         for (Player player : Bukkit.getOnlinePlayers()) {
             applyRankPermissions(player);
         }
+        if (plugin.getKaramScoreboardManager() != null) {
+            plugin.getKaramScoreboardManager().updateAllPlayers();
+        }
     }
 
     public void loadPlayer(Player player) {
@@ -132,6 +135,9 @@ public final class RankManager {
         applyRankPermissions(target);
         plugin.getPlayerDisplayManager().updateAllPlayers();
         plugin.getTabManager().updateAllPlayers();
+        if (plugin.getKaramScoreboardManager() != null) {
+            plugin.getKaramScoreboardManager().updateAllPlayers();
+        }
     }
 
     public void setOfflinePlayerRank(OfflinePlayer target, Rank rank) {
@@ -147,6 +153,9 @@ public final class RankManager {
         applyRankPermissions(target);
         plugin.getPlayerDisplayManager().updateAllPlayers();
         plugin.getTabManager().updateAllPlayers();
+        if (plugin.getKaramScoreboardManager() != null) {
+            plugin.getKaramScoreboardManager().updateAllPlayers();
+        }
     }
 
     public void clearOfflinePlayerRank(OfflinePlayer target) {
@@ -196,6 +205,9 @@ public final class RankManager {
         reload();
         plugin.getPlayerDisplayManager().updateAllPlayers();
         plugin.getTabManager().updateAllPlayers();
+        if (plugin.getKaramScoreboardManager() != null) {
+            plugin.getKaramScoreboardManager().updateAllPlayers();
+        }
         return true;
     }
 
@@ -210,6 +222,9 @@ public final class RankManager {
         reload();
         plugin.getPlayerDisplayManager().updateAllPlayers();
         plugin.getTabManager().updateAllPlayers();
+        if (plugin.getKaramScoreboardManager() != null) {
+            plugin.getKaramScoreboardManager().updateAllPlayers();
+        }
         return true;
     }
 
@@ -313,17 +328,17 @@ public final class RankManager {
                 .replace("%karamsmp_world%", player.getWorld().getName())
                 .replace("%karamsmp_gamemode%", player.getGameMode().name());
 
-        if (plugin.getScoreboardManager() != null) {
-            replaced = replaced
-                    .replace("%karamsmp_scoreboard%", plugin.getScoreboardManager().getActiveScoreboardId(player))
-                    .replace("%karamsmp_scoreboard_id%", plugin.getScoreboardManager().getActiveScoreboardId(player));
-        }
-
         if (plugin.getRegionManager() != null) {
             replaced = replaced
                     .replace("%karamsmp_region%", plugin.getRegionManager().getTopRegionPlaceholder(player))
                     .replace("%karamsmp_regions%", plugin.getRegionManager().getRegionsPlaceholder(player))
                     .replace("%karamsmp_region_count%", plugin.getRegionManager().getRegionCountPlaceholder(player));
+        }
+
+        if (plugin.getKaramScoreboardManager() != null) {
+            replaced = replaced
+                    .replace("%karamsmp_scoreboard%", plugin.getKaramScoreboardManager().getActiveScoreboardId(player))
+                    .replace("%karamsmp_scoreboard_id%", plugin.getKaramScoreboardManager().getActiveScoreboardId(player));
         }
 
         replaced = MessageUtil.color(replaced);
