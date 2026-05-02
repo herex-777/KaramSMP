@@ -1,0 +1,171 @@
+name: KaramSMP
+version: '0.4'
+main: me.herex.karmsmp.KaramSMP
+api-version: '1.21'
+author: Herex._.7
+softdepend: [PlaceholderAPI]
+description: Adds /gmsp toggle, configurable TAB, ranks, placeholders, databases, regions, scoreboards, join messages, and /discord.
+commands:
+  gmsp:
+    description: Toggle yourself between spectator mode and survival mode.
+    usage: /gmsp
+    aliases:
+      - karamsmpgmsp
+      - gsmp
+  reload:
+    description: Reload the KaramSMP plugin.
+    usage: /reload
+    aliases:
+      - ksmpreload
+      - karamsmpreload
+  discord:
+    description: Shows the server Discord invite.
+    usage: /discord
+    aliases:
+      - dc
+      - disc
+      - discordserver
+  rank:
+    description: Manage KaramSMP ranks and player rank assignments.
+    usage: /rank help
+    aliases:
+      - ranks
+      - ksmprank
+  region:
+    description: Manage KaramSMP regions and protection flags.
+    usage: /region help
+    aliases:
+      - regions
+      - rg
+  kscoreboard:
+    description: Manage KaramSMP scoreboards.
+    usage: /kscoreboard help
+    aliases:
+      - scoreboards
+      - sb
+      - karamsmpscoreboard
+permissions:
+  karamsmp.scoreboards.admin:
+    description: Allows a player to manage KaramSMP scoreboards.
+    default: op
+  karamsmp.discord:
+    description: Allows a player to use /discord when discord.permission is set to karamsmp.discord.
+    default: true
+  karamsmp.helper.gmsp:
+    description: Allows a player to use /gmsp and toggle spectator mode.
+    default: op
+  karamsmp.reload:
+    description: Allows a player to reload KaramSMP.
+    default: op
+  karamsmp.admin:
+    description: Gives access to every KaramSMP admin feature.
+    default: op
+    children:
+      karamsmp.reload: true
+      karamsmp.admin.ranks: true
+      karamsmp.regions.admin: true
+      karamsmp.regions.bypass: true
+      karamsmp.scoreboards.admin: true
+      karamsmp.helper.gmsp: true
+      karamsmp.discord: true
+  karamsmp.admin.ranks:
+    description: Allows a player to manage KaramSMP ranks and player ranks.
+    default: op
+  karamsmp.regions.admin:
+    description: Allows a player to manage all KaramSMP region commands.
+    default: op
+    children:
+      karamsmp.regions.wand: true
+      karamsmp.regions.create: true
+      karamsmp.regions.delete: true
+      karamsmp.regions.list: true
+      karamsmp.regions.info: true
+      karamsmp.regions.flag: true
+      karamsmp.regions.owner: true
+      karamsmp.regions.member: true
+      karamsmp.regions.priority: true
+      karamsmp.regions.redefine: true
+      karamsmp.regions.resize: true
+      karamsmp.regions.message: true
+      karamsmp.regions.rename: true
+      karamsmp.regions.teleport: true
+      karamsmp.regions.save: true
+      karamsmp.regions.reload: true
+  karamsmp.regions.bypass:
+    description: Bypasses KaramSMP region protections.
+    default: op
+  karamsmp.regions.wand:
+    description: Allows use of the region selection wand.
+    default: op
+  karamsmp.regions.create:
+    description: Allows creating regions.
+    default: op
+  karamsmp.regions.delete:
+    description: Allows deleting regions.
+    default: op
+  karamsmp.regions.list:
+    description: Allows listing regions.
+    default: op
+  karamsmp.regions.info:
+    description: Allows viewing region information.
+    default: op
+  karamsmp.regions.flag:
+    description: Allows editing region flags.
+    default: op
+  karamsmp.regions.owner:
+    description: Allows editing region owners.
+    default: op
+  karamsmp.regions.member:
+    description: Allows editing region members.
+    default: op
+  karamsmp.regions.priority:
+    description: Allows editing region priority.
+    default: op
+  karamsmp.regions.redefine:
+    description: Allows redefining regions from a selection.
+    default: op
+  karamsmp.regions.resize:
+    description: Allows expanding and contracting regions.
+    default: op
+  karamsmp.regions.message:
+    description: Allows editing region greeting and farewell messages.
+    default: op
+  karamsmp.regions.rename:
+    description: Allows renaming regions.
+    default: op
+  karamsmp.regions.teleport:
+    description: Allows teleporting to a region center.
+    default: op
+  karamsmp.regions.save:
+    description: Allows saving regions.yml.
+    default: op
+  karamsmp.regions.reload:
+    description: Allows reloading regions.yml.
+    default: op
+  karamsmp.rank.owner:
+    description: Owner rank permission.
+    default: false
+  karamsmp.rank.manager:
+    description: Manager rank permission.
+    default: false
+  karamsmp.rank.developer:
+    description: Developer rank permission.
+    default: false
+  karamsmp.rank.sradmin:
+    description: Senior admin rank permission.
+    default: false
+  karamsmp.rank.admin:
+    description: Admin rank permission.
+    default: false
+  karamsmp.rank.srmod:
+    description: Senior moderator rank permission.
+    default: false
+  karamsmp.rank.mod:
+    description: Moderator rank permission.
+    default: false
+  karamsmp.rank.jrhelper:
+    description: Junior helper rank permission.
+    default: false
+  karamsmp.rank.helper:
+    description: Helper rank permission.
+    default: false

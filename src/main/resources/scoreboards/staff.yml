@@ -1,0 +1,22 @@
+id: "staff"
+enabled: true
+priority: 100
+permission: "karamsmp.scoreboard.staff"
+worlds: []
+regions: []
+
+title-animation:
+  enabled: true
+  interval-ticks: 10
+  frames:
+    - "&c&lSTAFF"
+    - "&4&lSTAFF"
+
+lines:
+  - "&8&m----------------"
+  - "&fStaff: &e%player%"
+  - "&fRank: %karamsmp_ranks_prefix%"
+  - "&fWorld: &b%world%"
+  - "&fRegion: &d%karamsmp_region%"
+  - "&fOnline: &a%online%&7/&a%max_players%"
+  - "&8&m----------------"

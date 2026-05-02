@@ -1,0 +1,22 @@
+id: "nether"
+enabled: true
+priority: 25
+permission: ""
+worlds:
+  - "world_nether"
+regions: []
+
+title-animation:
+  enabled: true
+  interval-ticks: 10
+  frames:
+    - "&c&lNETHER"
+    - "&4&lNETHER"
+
+lines:
+  - "&8&m----------------"
+  - "&cNether World"
+  - "&fPlayer: &e%player%"
+  - "&fRank: %karamsmp_ranks_prefix%"
+  - "&fOnline: &a%online%&7/&a%max_players%"
+  - "&8&m----------------"

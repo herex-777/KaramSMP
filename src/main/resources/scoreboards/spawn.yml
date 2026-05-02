@@ -1,0 +1,22 @@
+id: "spawn"
+enabled: true
+priority: 50
+permission: ""
+worlds: []
+regions:
+  - "spawn"
+
+title-animation:
+  enabled: true
+  interval-ticks: 8
+  frames:
+    - "&a&lSPAWN"
+    - "&2&lSPAWN"
+
+lines:
+  - "&8&m----------------"
+  - "&aYou are in Spawn"
+  - "&fPlayer: &e%player%"
+  - "&fRank: %karamsmp_ranks_prefix%"
+  - "&fPlayers: &a%online%&7/&a%max_players%"
+  - "&8&m----------------"

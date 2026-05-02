@@ -1,0 +1,23 @@
+id: "default"
+enabled: true
+priority: 0
+permission: ""
+worlds: []
+regions: []
+
+title-animation:
+  enabled: false
+  interval-ticks: 10
+  frames:
+    - "&b&lKaram SMP"
+
+lines:
+  - ""
+  - "&fMoney &a0"
+  - "&fShards &d0"
+  - "&fKills &40"
+  - "&fDeaths &60"
+  - "&fKeyall &90"
+  - "&fPlaytime &e0"
+  - ""
+  - "&eplay.karamsmp.net"

@@ -195,3 +195,107 @@ Messages support placeholders like `%player%`, `%region%`, `%karamsmp_ranks_pref
 - Permission: `karamsmp.reload`
 
 Note: `/reload` can conflict with the server's built-in reload command. If that happens, use `/ksmpreload` or `/karamsmpreload`.
+
+## TAB rank priority fix
+
+KaramSMP now forces TAB order using scoreboard teams with inverted rank priority.
+Higher priority numbers sort first.
+
+Example from `config.yml`:
+
+```yaml
+ranks:
+  owner:
+    priority: 9
+  helper:
+    priority: 1
+```
+
+Owner will show above helper in TAB.
+
+You can keep this enabled with:
+
+```yaml
+tab:
+  force-rank-priority-sorting: true
+```
+
+## Join and quit messages
+
+Custom join and quit messages are editable in `config.yml`:
+
+```yaml
+join-messages:
+  enabled: true
+  message: "&8[&a+&8] %karamsmp_ranks_prefix%%player% &7joined the server."
+  first-join-enabled: true
+  first-join-message: "&8[&a+&8] %karamsmp_ranks_prefix%%player% &7joined for the first time. &eWelcome!"
+
+quit-messages:
+  enabled: true
+  message: "&8[&c-&8] %karamsmp_ranks_prefix%%player% &7left the server."
+```
+
+Set the message to an empty string to hide it.
+
+## Discord command
+
+Base command: `/discord`
+Aliases: `/dc`, `/disc`, `/serverdiscord`
+
+Config:
+
+```yaml
+discord:
+  enabled: true
+  permission: ""
+  invite: "https://discord.gg/yourserver"
+  command-aliases:
+    - "discord"
+    - "dc"
+    - "disc"
+  message:
+    - "&9&lDiscord"
+    - "&7Join our Discord: &b%discord_invite%"
+```
+
+Leave `permission` empty to allow everyone, or set it to `karamsmp.discord` to require permission.
+
+## Scoreboards
+
+Scoreboard files are stored in:
+
+```text
+plugins/KaramSMP/scoreboards/
+```
+
+Default files included:
+
+- `default.yml`
+- `spawn.yml`
+- `staff.yml`
+- `nether.yml`
+
+Base command: `/kscoreboard`
+Aliases: `/scoreboards`, `/sb`, `/karamsmpscoreboard`
+Permission: `karamsmp.scoreboards.admin`
+
+Commands:
+
+- `/kscoreboard reload`
+- `/kscoreboard list`
+- `/kscoreboard info <id>`
+- `/kscoreboard create <id>`
+- `/kscoreboard delete <id>`
+- `/kscoreboard enable <id>`
+- `/kscoreboard disable <id>`
+- `/kscoreboard setpermission <id> <permission|none>`
+- `/kscoreboard setpriority <id> <number>`
+- `/kscoreboard addworld <id> <world>`
+- `/kscoreboard removeworld <id> <world>`
+- `/kscoreboard addregion <id> <region>`
+- `/kscoreboard removeregion <id> <region>`
+- `/kscoreboard settitle <id> <title>`
+- `/kscoreboard addline <id> <line>`
+- `/kscoreboard setline <id> <line-number> <line>`
+- `/kscoreboard removeline <id> <line-number>`

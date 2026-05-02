@@ -1,0 +1,232 @@
+# KaramSMP Configuration
+
+# Internal placeholders you can use in config text:
+# %player%, %displayname%, %rank%, %prefix%, %suffix%, %online%, %max_players%, %world%, %gamemode%
+# %karamsmp_rank%, %karamsmp_ranks_prefix%, %karamsmp_ranks_suffix%, %karamsmp_saved_rank%
+# %karamsmp_rank_priority%, %karamsmp_rank_permission%, %karamsmp_rank_permissions%
+# %karamsmp_region%, %karamsmp_regions%, %karamsmp_region_count%
+# %discord%, %discord_invite% can be used inside the Discord command message.
+
+# Database Configuration
+database:
+  type: "sqlite"
+  sqlite:
+    file: "player-ranks.db"
+    table: "player_ranks"
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "karamsmp"
+    username: "root"
+    password: "password"
+    use-ssl: false
+    table-prefix: "karamsmp_"
+  yaml:
+    file: "player-ranks.yml"
+
+# Tab System
+tab:
+  enabled: true
+  update-interval-seconds: 5
+  # Forces higher rank priorities to appear above lower ranks in TAB.
+  force-rank-priority-sorting: true
+  header:
+    - "&b&lKaram SMP"
+    - "&f%online% Players"
+  footer:
+    - "&3/🇩‌🇮‌🇸‌🇨‌🇴‌🇷‌🇩‌ &b/🇬‌🇺‌🇮‌🇩‌🇪‌ &3/🇸‌🇹‌🇴‌🇷‌🇪‌"
+
+# Join Message System
+join-messages:
+  enabled: true
+  message: "&8[&a+&8] %karamsmp_ranks_prefix%%player% &ejoined the server."
+  first-join-enabled: false
+  first-join-message: "&8[&a+&8] %karamsmp_ranks_prefix%%player%%karamsmp_ranks_suffix% &7joined for the first time. &eWelcome!"
+
+# Quit Message System
+quit-messages:
+  enabled: false
+  message: "&8[&c-&8] %karamsmp_ranks_prefix%%player%%karamsmp_ranks_suffix% &7left the server."
+
+# Discord Command System
+discord:
+  enabled: true
+  permission: ""
+  invite: "https://discord.gg/karamsmp"
+  command-aliases:
+    - "discord"
+    - "dc"
+    - "discordserver"
+  message:
+    - "&f🇰‌🇦‌🇷‌🇦‌🇲‌ 🇸‌🇲‌🇵‌ 🇩‌🇮‌🇸‌🇨‌🇴‌🇷‌🇩‌ 🇸‌🇪‌🇷‌🇻‌🇪‌🇷‌"
+    - ""
+    - "&b%discord_invite%"
+  disabled-message: "&cThe Discord command is disabled."
+  no-permission-message: "&cYou don't have permission to use this command!"
+
+# Name-Format System
+name-format:
+  display-name: "%karamsmp_ranks_prefix%%player%"
+  tab-list: "%karamsmp_ranks_prefix%%player%"
+  name-tag:
+    enabled: true
+
+# Chat System
+chat:
+  enabled: true
+  format: "%karamsmp_ranks_prefix%%player%&7: &f%message%"
+
+# Scoreboard System
+# Scoreboard files are stored in plugins/KaramSMP/scoreboards/
+scoreboards:
+  enabled: true
+  folder: "scoreboards"
+  update-interval-ticks: 100
+  reset-when-no-match: false
+
+# Region System
+regions:
+  enabled: true
+  data-file: "regions.yml"
+  wand:
+    material: "GOLDEN_AXE"
+    name: "&eKaramSMP Region Wand"
+    lore:
+      - "&7Left click a block: &eSet position 1"
+      - "&7Right click a block: &eSet position 2"
+      - "&8Then use &f/region create <name>"
+  messages:
+    send-enter-leave: true
+    protected: "&cYou can't do that in region &e%region%&c."
+    enter-denied: "&cYou can't enter region &e%region%&c."
+    exit-denied: "&cYou can't leave region &e%region%&c."
+    enter: "&aEntering &e%region%&a."
+    leave: "&cLeaving &e%region%&c."
+  members:
+    # Owners and members can build even if block-break/block-place are false.
+    bypass-build-flags: false
+    # Owners and members can interact/open containers even if interact/chest-access are false.
+    bypass-interact-flags: false
+  defaults:
+    priority: 0
+    flags:
+      block-break: false
+      block-place: false
+      pvp: false
+      fall-damage: false
+      interact: true
+      chest-access: true
+      item-drop: false
+      item-pickup: false
+      mob-spawning: false
+      explosions: false
+      fire-spread: false
+      entry: true
+      exit: true
+  available-flags:
+    - "block-break"
+    - "block-place"
+    - "pvp"
+    - "fall-damage"
+    - "interact"
+    - "chest-access"
+    - "item-drop"
+    - "item-pickup"
+    - "mob-spawning"
+    - "explosions"
+    - "fire-spread"
+    - "entry"
+    - "exit"
+
+# Rank system
+ranks:
+  owner:
+    permission: "karamsmp.rank.owner"
+    prefix: "&9&lOWNER &9"
+    suffix: ""
+    priority: 9
+    permissions:
+      - "karamsmp.admin"
+      - "karamsmp.reload"
+      - "karamsmp.admin.ranks"
+      - "karamsmp.helper.gmsp"
+  manager:
+    permission: "karamsmp.rank.manager"
+    prefix: "&d&lMANAGER &d"
+    suffix: ""
+    priority: 8
+    permissions:
+      - "karamsmp.admin"
+      - "karamsmp.reload"
+      - "karamsmp.admin.ranks"
+      - "karamsmp.helper.gmsp"
+  developer:
+    permission: "karamsmp.rank.developer"
+    prefix: "&5&lMANAGER &5"
+    suffix: ""
+    priority: 7
+    permissions:
+      - "karamsmp.admin"
+      - "karamsmp.reload"
+      - "karamsmp.admin.ranks"
+      - "karamsmp.helper.gmsp"
+  sradmin:
+    permission: "karamsmp.rank.sradmin"
+    prefix: "&6&lSR ADMIN &6"
+    suffix: ""
+    priority: 6
+    permissions:
+      - "karamsmp.admin"
+      - "karamsmp.reload"
+      - "karamsmp.admin.ranks"
+      - "karamsmp.helper.gmsp"
+  admin:
+    permission: "karamsmp.rank.admin"
+    prefix: "&c&lADMIN &c"
+    suffix: ""
+    priority: 5
+    permissions:
+      - "karamsmp.admin"
+      - "karamsmp.reload"
+      - "karamsmp.admin.ranks"
+      - "karamsmp.helper.gmsp"
+  srmod:
+    permission: "karamsmp.rank.srmod"
+    prefix: "&2&lSR MOD &2"
+    suffix: ""
+    priority: 4
+    permissions:
+      - "karamsmp.admin"
+      - "karamsmp.reload"
+      - "karamsmp.admin.ranks"
+      - "karamsmp.helper.gmsp"
+  mod:
+    permission: "karamsmp.rank.mod"
+    prefix: "&a&lMOD &a"
+    suffix: ""
+    priority: 3
+    permissions:
+      - "karamsmp.admin"
+      - "karamsmp.reload"
+      - "karamsmp.admin.ranks"
+      - "karamsmp.helper.gmsp"
+  jrhelper:
+    permission: "karamsmp.rank.jrhelper"
+    prefix: "&9&lJR HELPER &b"
+    suffix: ""
+    priority: 2
+    permissions:
+      - "karamsmp.helper.gmsp"
+  helper:
+    permission: "karamsmp.rank.helper"
+    prefix: "&b&lHELPER &b"
+    suffix: ""
+    priority: 1
+    permissions:
+      - "karamsmp.helper.gmsp"
+  member:
+    permission: ""
+    prefix: "&7"
+    suffix: ""
+    priority: 0
+    permissions: []

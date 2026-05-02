@@ -9,7 +9,7 @@
     <packaging>jar</packaging>
 
     <name>KaramSMP</name>
-    <description>Paper SMP plugin with game mode commands, configurable TAB, ranks, placeholders, databases, and regions.</description>
+    <description>Paper SMP plugin with game mode commands, configurable TAB, ranks, placeholders, databases, regions, scoreboards, join messages, and Discord command.</description>
 
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
