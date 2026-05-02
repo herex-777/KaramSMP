@@ -387,8 +387,35 @@ public final class RegionManager {
         if (item == null || !item.hasItemMeta()) {
             return false;
         }
+
         ItemMeta meta = item.getItemMeta();
-        return meta != null && meta.getPersistentDataContainer().has(wandKey, PersistentDataType.BYTE);
+        if (meta == null) {
+            return false;
+        }
+
+        if (meta.getPersistentDataContainer().has(wandKey, PersistentDataType.BYTE)) {
+            return true;
+        }
+
+        Material configuredMaterial = Material.matchMaterial(plugin.getConfig().getString("regions.wand.material", "GOLDEN_AXE"));
+        if (configuredMaterial == null) {
+            configuredMaterial = Material.GOLDEN_AXE;
+        }
+
+        if (item.getType() != configuredMaterial) {
+            return false;
+        }
+
+        if (plugin.getConfig().getBoolean("regions.wand.match-any-configured-material", true)) {
+            return true;
+        }
+
+        if (!plugin.getConfig().getBoolean("regions.wand.match-by-name", true)) {
+            return false;
+        }
+
+        String configuredName = MessageUtil.color(plugin.getConfig().getString("regions.wand.name", "&6KaramSMP Region Wand"));
+        return meta.hasDisplayName() && meta.getDisplayName().equals(configuredName);
     }
 
     public Set<String> getAvailableFlags() {

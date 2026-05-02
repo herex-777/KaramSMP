@@ -4,6 +4,7 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.herex.karmsmp.KaramSMP;
 import me.herex.karmsmp.managers.Rank;
 import me.herex.karmsmp.utils.MessageUtil;
+import me.herex.karmsmp.utils.PlayerStatsUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -60,10 +61,15 @@ public final class KaramSMPPlaceholderExpansion extends PlaceholderExpansion {
             case "max_players" -> String.valueOf(Bukkit.getMaxPlayers());
             case "world" -> player.getWorld().getName();
             case "gamemode" -> player.getGameMode().name();
+            case "kills", "player_kills" -> String.valueOf(PlayerStatsUtil.getKills(player));
+            case "deaths", "player_deaths" -> String.valueOf(PlayerStatsUtil.getDeaths(player));
+            case "playtime" -> PlayerStatsUtil.getPlaytime(player);
+            case "playtime_ticks" -> String.valueOf(PlayerStatsUtil.getPlayTicks(player));
+            case "ping" -> String.valueOf(PlayerStatsUtil.getPing(player));
             case "region", "top_region", "regions_top" -> plugin.getRegionManager() == null ? "none" : plugin.getRegionManager().getTopRegionPlaceholder(player);
             case "regions", "region_list", "regions_list" -> plugin.getRegionManager() == null ? "none" : plugin.getRegionManager().getRegionsPlaceholder(player);
             case "region_count", "regions_count" -> plugin.getRegionManager() == null ? "0" : plugin.getRegionManager().getRegionCountPlaceholder(player);
-            case "scoreboard", "scoreboard_id" -> plugin.getKaramScoreboardManager() == null ? "none" : plugin.getKaramScoreboardManager().getActiveScoreboardId(player);
+            case "scoreboard", "scoreboard_id" -> plugin.getScoreboardManager() == null ? "none" : plugin.getScoreboardManager().getActiveScoreboardId(player);
             default -> null;
         };
     }

@@ -1,29 +1,22 @@
 id: "staff"
 enabled: true
-# Permission-only board. Give a player karamsmp.scoreboard.staff to show it.
 priority: 100
 permission: "karamsmp.scoreboard.staff"
 worlds: []
 regions: []
-title:
+
+title-animation:
+  enabled: true
+  interval-ticks: 10
   frames:
     - "&c&lSTAFF"
-    - "&4&lSTAFF MODE"
-animation:
-  title-speed-ticks: 8
-  line-speed-ticks: 20
+    - "&4&lSTAFF"
+
 lines:
-  - "&7&m----------------"
-  - "&fName: &e%player%"
+  - "&8&m----------------"
+  - "&fStaff: &e%player%"
   - "&fRank: %karamsmp_ranks_prefix%"
-  - "&fWorld: &e%world%"
-  - "&fRegion: &e%karamsmp_region%"
-  - "&fGamemode: &b%gamemode%"
-  - "&fPlayers: &a%online%&7/&a%max_players%"
-  - ""
-  - "&cStaff tools active"
-  - "&7&m----------------"
-animated-lines:
-  9:
-    - "&cStaff tools active"
-    - "&eWatch chat and regions"
+  - "&fWorld: &b%world%"
+  - "&fRegion: &d%karamsmp_region%"
+  - "&fOnline: &a%online%&7/&a%max_players%"
+  - "&8&m----------------"

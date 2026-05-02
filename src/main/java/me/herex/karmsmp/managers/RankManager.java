@@ -4,6 +4,7 @@ import me.herex.karmsmp.KaramSMP;
 import me.herex.karmsmp.hooks.PlaceholderAPIUtil;
 import me.herex.karmsmp.storage.StorageManager;
 import me.herex.karmsmp.utils.MessageUtil;
+import me.herex.karmsmp.utils.PlayerStatsUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
@@ -66,9 +67,6 @@ public final class RankManager {
         for (Player player : Bukkit.getOnlinePlayers()) {
             applyRankPermissions(player);
         }
-        if (plugin.getKaramScoreboardManager() != null) {
-            plugin.getKaramScoreboardManager().updateAllPlayers();
-        }
     }
 
     public void loadPlayer(Player player) {
@@ -97,6 +95,14 @@ public final class RankManager {
             }
         }
 
+        if (plugin.getConfig().getBoolean("ranks-settings.op-gets-highest-rank", true) && player.isOp()) {
+            String opRankName = plugin.getConfig().getString("ranks-settings.op-rank", "owner");
+            Optional<Rank> opRank = getRankByName(opRankName);
+            if (opRank.isPresent()) {
+                return opRank.get();
+            }
+        }
+
         for (Rank rank : ranks) {
             String permission = rank.getPermission();
             if (permission == null || permission.isBlank() || player.hasPermission(permission)) {
@@ -104,7 +110,9 @@ public final class RankManager {
             }
         }
 
-        return ranks.get(ranks.size() - 1);
+        String defaultRankName = plugin.getConfig().getString("ranks-settings.default-rank", "member");
+        Optional<Rank> defaultRank = getRankByName(defaultRankName);
+        return defaultRank.orElseGet(() -> ranks.get(ranks.size() - 1));
     }
 
     public Optional<Rank> getRankByName(String rankName) {
@@ -135,8 +143,8 @@ public final class RankManager {
         applyRankPermissions(target);
         plugin.getPlayerDisplayManager().updateAllPlayers();
         plugin.getTabManager().updateAllPlayers();
-        if (plugin.getKaramScoreboardManager() != null) {
-            plugin.getKaramScoreboardManager().updateAllPlayers();
+        if (plugin.getScoreboardManager() != null) {
+            plugin.getScoreboardManager().updateAllPlayers();
         }
     }
 
@@ -153,8 +161,8 @@ public final class RankManager {
         applyRankPermissions(target);
         plugin.getPlayerDisplayManager().updateAllPlayers();
         plugin.getTabManager().updateAllPlayers();
-        if (plugin.getKaramScoreboardManager() != null) {
-            plugin.getKaramScoreboardManager().updateAllPlayers();
+        if (plugin.getScoreboardManager() != null) {
+            plugin.getScoreboardManager().updateAllPlayers();
         }
     }
 
@@ -205,8 +213,8 @@ public final class RankManager {
         reload();
         plugin.getPlayerDisplayManager().updateAllPlayers();
         plugin.getTabManager().updateAllPlayers();
-        if (plugin.getKaramScoreboardManager() != null) {
-            plugin.getKaramScoreboardManager().updateAllPlayers();
+        if (plugin.getScoreboardManager() != null) {
+            plugin.getScoreboardManager().updateAllPlayers();
         }
         return true;
     }
@@ -222,8 +230,8 @@ public final class RankManager {
         reload();
         plugin.getPlayerDisplayManager().updateAllPlayers();
         plugin.getTabManager().updateAllPlayers();
-        if (plugin.getKaramScoreboardManager() != null) {
-            plugin.getKaramScoreboardManager().updateAllPlayers();
+        if (plugin.getScoreboardManager() != null) {
+            plugin.getScoreboardManager().updateAllPlayers();
         }
         return true;
     }
@@ -326,7 +334,23 @@ public final class RankManager {
                 .replace("%karamsmp_online%", String.valueOf(Bukkit.getOnlinePlayers().size()))
                 .replace("%karamsmp_max_players%", String.valueOf(Bukkit.getMaxPlayers()))
                 .replace("%karamsmp_world%", player.getWorld().getName())
-                .replace("%karamsmp_gamemode%", player.getGameMode().name());
+                .replace("%karamsmp_gamemode%", player.getGameMode().name())
+                .replace("%kills%", String.valueOf(PlayerStatsUtil.getKills(player)))
+                .replace("%deaths%", String.valueOf(PlayerStatsUtil.getDeaths(player)))
+                .replace("%playtime%", PlayerStatsUtil.getPlaytime(player))
+                .replace("%playtime_ticks%", String.valueOf(PlayerStatsUtil.getPlayTicks(player)))
+                .replace("%ping%", String.valueOf(PlayerStatsUtil.getPing(player)))
+                .replace("%karamsmp_kills%", String.valueOf(PlayerStatsUtil.getKills(player)))
+                .replace("%karamsmp_deaths%", String.valueOf(PlayerStatsUtil.getDeaths(player)))
+                .replace("%karamsmp_playtime%", PlayerStatsUtil.getPlaytime(player))
+                .replace("%karamsmp_playtime_ticks%", String.valueOf(PlayerStatsUtil.getPlayTicks(player)))
+                .replace("%karamsmp_ping%", String.valueOf(PlayerStatsUtil.getPing(player)));
+
+        if (plugin.getScoreboardManager() != null) {
+            replaced = replaced
+                    .replace("%karamsmp_scoreboard%", plugin.getScoreboardManager().getActiveScoreboardId(player))
+                    .replace("%karamsmp_scoreboard_id%", plugin.getScoreboardManager().getActiveScoreboardId(player));
+        }
 
         if (plugin.getRegionManager() != null) {
             replaced = replaced
@@ -335,19 +359,11 @@ public final class RankManager {
                     .replace("%karamsmp_region_count%", plugin.getRegionManager().getRegionCountPlaceholder(player));
         }
 
-        if (plugin.getKaramScoreboardManager() != null) {
-            replaced = replaced
-                    .replace("%karamsmp_scoreboard%", plugin.getKaramScoreboardManager().getActiveScoreboardId(player))
-                    .replace("%karamsmp_scoreboard_id%", plugin.getKaramScoreboardManager().getActiveScoreboardId(player));
-        }
-
-        replaced = MessageUtil.color(replaced);
-
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             replaced = PlaceholderAPIUtil.setPlaceholders(player, replaced);
         }
 
-        return replaced;
+        return MessageUtil.color(replaced);
     }
 
     private String cleanRankKey(String name) {

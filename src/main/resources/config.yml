@@ -1,11 +1,14 @@
 # KaramSMP Configuration
 
 # Internal placeholders you can use in config text:
+# RGB hex colors are supported everywhere: &#00D5FF, #00D5FF, or <#00D5FF>
 # %player%, %displayname%, %rank%, %prefix%, %suffix%, %online%, %max_players%, %world%, %gamemode%
 # %karamsmp_rank%, %karamsmp_ranks_prefix%, %karamsmp_ranks_suffix%, %karamsmp_saved_rank%
 # %karamsmp_rank_priority%, %karamsmp_rank_permission%, %karamsmp_rank_permissions%
 # %karamsmp_region%, %karamsmp_regions%, %karamsmp_region_count%
 # %discord%, %discord_invite% can be used inside the Discord command message.
+# %kills%, %deaths%, %playtime%, %playtime_ticks%, %ping%
+# %karamsmp_kills%, %karamsmp_deaths%, %karamsmp_playtime%, %karamsmp_ping%
 
 # Database Configuration
 database:
@@ -20,20 +23,29 @@ database:
     username: "root"
     password: "password"
     use-ssl: false
+    # Leave table empty to use table-prefix + player_ranks.
+    table: ""
     table-prefix: "karamsmp_"
   yaml:
     file: "player-ranks.yml"
 
+# Text System
+# Removes hidden zero-width characters from fancy copied text so TAB/scoreboard does not display broken boxes.
+text:
+  remove-zero-width-characters: true
+
 # Tab System
 tab:
   enabled: true
-  update-interval-seconds: 5
+  update-interval-seconds: 4
   # Forces higher rank priorities to appear above lower ranks in TAB.
   force-rank-priority-sorting: true
   header:
     - "&b&lKaram SMP"
     - "&f%online% Players"
+    - ""
   footer:
+    - ""
     - "&3/🇩‌🇮‌🇸‌🇨‌🇴‌🇷‌🇩‌ &b/🇬‌🇺‌🇮‌🇩‌🇪‌ &3/🇸‌🇹‌🇴‌🇷‌🇪‌"
 
 # Join Message System
@@ -58,14 +70,14 @@ discord:
     - "dc"
     - "discordserver"
   message:
-    - "&f🇰‌🇦‌🇷‌🇦‌🇲‌ 🇸‌🇲‌🇵‌ 🇩‌🇮‌🇸‌🇨‌🇴‌🇷‌🇩‌ 🇸‌🇪‌🇷‌🇻‌🇪‌🇷‌"
+    - "&fKaram SMP Discord Server"
     - ""
     - "&b%discord_invite%"
+    - ""
   disabled-message: "&cThe Discord command is disabled."
   no-permission-message: "&cYou don't have permission to use this command!"
 
-
-# Night Vision Command System
+# Night Vision Command
 night-vision:
   enabled: true
   enabled-message: "&aNight vision enabled."
@@ -90,11 +102,11 @@ chat:
   format: "%karamsmp_ranks_prefix%%player%&7: &f%message%"
 
 # Scoreboard System
-# Scoreboard files are stored in plugins/KaramSMP/scoreboards/
 scoreboards:
   enabled: true
   folder: "scoreboards"
-  update-interval-ticks: 100
+  # 20 ticks = 1 second. Lower values update placeholders faster.
+  update-interval-ticks: 20
   reset-when-no-match: false
 
 # Region System
@@ -104,6 +116,11 @@ regions:
   wand:
     material: "GOLDEN_AXE"
     name: "&eKaramSMP Region Wand"
+    # This lets old wands still work if they match material + display name.
+    match-by-name: false
+    # If true, any configured material held by a player with region permission works as the wand.
+    # This fixes cases where the axe loses its internal plugin tag.
+    match-any-configured-material: true
     lore:
       - "&7Left click a block: &eSet position 1"
       - "&7Right click a block: &eSet position 2"
@@ -150,6 +167,13 @@ regions:
     - "fire-spread"
     - "entry"
     - "exit"
+
+# Rank behavior
+ranks-settings:
+  # If true, OP players show as the op-rank even if karamsmp.rank.owner is default false in plugin.yml.
+  op-gets-highest-rank: true
+  op-rank: "owner"
+  default-rank: "member"
 
 # Rank system
 ranks:

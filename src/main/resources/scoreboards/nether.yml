@@ -5,24 +5,18 @@ permission: ""
 worlds:
   - "world_nether"
 regions: []
-title:
+
+title-animation:
+  enabled: true
+  interval-ticks: 10
   frames:
     - "&c&lNETHER"
     - "&4&lNETHER"
-animation:
-  title-speed-ticks: 10
-  line-speed-ticks: 20
+
 lines:
-  - "&7&m----------------"
+  - "&8&m----------------"
+  - "&cNether World"
   - "&fPlayer: &e%player%"
   - "&fRank: %karamsmp_ranks_prefix%"
-  - "&fWorld: &c%world%"
-  - "&fRegion: &e%karamsmp_region%"
-  - ""
-  - "&cBe careful here!"
-  - "&7&m----------------"
-animated-lines:
-  7:
-    - "&cBe careful here!"
-    - "&6Bring fire resistance"
-    - "&eProtect your items"
+  - "&fOnline: &a%online%&7/&a%max_players%"
+  - "&8&m----------------"

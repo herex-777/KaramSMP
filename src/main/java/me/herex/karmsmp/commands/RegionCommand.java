@@ -475,7 +475,9 @@ public final class RegionCommand implements TabExecutor {
     }
 
     private boolean has(CommandSender sender, String permission) {
-        return sender.hasPermission(permission) || sender.hasPermission(RegionManager.ADMIN_PERMISSION);
+        return sender.hasPermission(permission)
+                || sender.hasPermission(RegionManager.ADMIN_PERMISSION)
+                || sender.hasPermission("karamsmp.admin");
     }
 
     private void sendNoPermission(CommandSender sender) {

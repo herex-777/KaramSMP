@@ -2,22 +2,27 @@ id: "default"
 enabled: true
 priority: 0
 permission: ""
-worlds: []
+worlds:
+  - "world"
 regions: []
 
 title-animation:
-  enabled: false
-  interval-ticks: 10
+  enabled: true
+  interval-ticks: 12
   frames:
-    - "&b&lKaram SMP"
+    - "&#2F6BFF&lKaram SMP"
+
+lines-animation:
+  enabled: true
+  interval-ticks: 20
 
 lines:
   - ""
-  - "&fMoney &a0"
-  - "&fShards &d0"
-  - "&fKills &40"
-  - "&fDeaths &60"
-  - "&fKeyall &90"
-  - "&fPlaytime &e0"
+  - "&#00FF66$ &fMoney &#00FF660B"
+  - "&#B34DFF✦ &fShards &#C25CFF0K"
+  - "&#FF4D4D🗡 &fKills &#FF4D4D%kills%"
+  - "&#FFAA33☠ &fDeaths &#FFAA33%deaths%"
+  - "&#0a8ee3⏳ &fKeyall &#0a8ee3 0m 0s"
+  - "&#FFE45C⏱ &fPlaytime &#FFE45C%playtime%"
   - ""
-  - "&eplay.karamsmp.net"
+  - "&#BFBFBFEU Central &#0a8ee3(%ping%ms)"

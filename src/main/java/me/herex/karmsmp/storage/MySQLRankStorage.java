@@ -31,11 +31,18 @@ public final class MySQLRankStorage implements RankStorage {
         String username = plugin.getConfig().getString("database.mysql.username", "root");
         String password = plugin.getConfig().getString("database.mysql.password", "");
         boolean ssl = plugin.getConfig().getBoolean("database.mysql.use-ssl", false);
-        tableName = sanitizeTableName(plugin.getConfig().getString("database.mysql.table-prefix", "karamsmp_") + "player_ranks");
+        String explicitTable = plugin.getConfig().getString("database.mysql.table", "");
+        if (explicitTable != null && !explicitTable.isBlank()) {
+            tableName = sanitizeTableName(explicitTable);
+        } else {
+            tableName = sanitizeTableName(plugin.getConfig().getString("database.mysql.table-prefix", "karamsmp_") + "player_ranks");
+        }
 
         String jdbcUrl = "jdbc:mysql://" + host + ":" + port + "/" + database
                 + "?useSSL=" + ssl
                 + "&allowPublicKeyRetrieval=true"
+                + "&connectTimeout=5000"
+                + "&socketTimeout=10000"
                 + "&characterEncoding=utf8"
                 + "&useUnicode=true"
                 + "&serverTimezone=UTC";
@@ -115,13 +122,18 @@ public final class MySQLRankStorage implements RankStorage {
     private void createTable() throws SQLException {
         String sql = "CREATE TABLE IF NOT EXISTS " + tableName + " ("
                 + "uuid VARCHAR(36) NOT NULL PRIMARY KEY,"
-                + "username VARCHAR(16) NOT NULL,"
+                + "username VARCHAR(64) NOT NULL,"
                 + "rank_name VARCHAR(64) NOT NULL,"
                 + "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
                 + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);
+            statement.executeUpdate("CREATE INDEX idx_" + tableName + "_rank_name ON " + tableName + " (rank_name)");
+        } catch (SQLException exception) {
+            if (!String.valueOf(exception.getMessage()).toLowerCase().contains("duplicate")) {
+                throw exception;
+            }
         }
     }
 

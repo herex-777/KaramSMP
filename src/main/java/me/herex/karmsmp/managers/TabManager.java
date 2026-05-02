@@ -58,6 +58,10 @@ public final class TabManager {
         String header = rankManager.applyPlaceholders(player, MessageUtil.joinLines(headerLines));
         String footer = rankManager.applyPlaceholders(player, MessageUtil.joinLines(footerLines));
 
-        player.setPlayerListHeaderFooter(header, footer);
+        try {
+            player.setPlayerListHeaderFooter(header, footer);
+        } catch (IllegalArgumentException exception) {
+            player.setPlayerListHeaderFooter(MessageUtil.safeLegacySubstring(header, 256), MessageUtil.safeLegacySubstring(footer, 256));
+        }
     }
 }

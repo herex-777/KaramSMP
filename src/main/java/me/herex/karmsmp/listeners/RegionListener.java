@@ -14,6 +14,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
@@ -28,6 +29,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.projectiles.ProjectileSource;
 
@@ -50,28 +52,46 @@ public final class RegionListener implements Listener {
         this.regionManager = regionManager;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void onWandUse(PlayerInteractEvent event) {
+        if (event.getHand() != null && event.getHand() != EquipmentSlot.HAND) {
+            return;
+        }
         if (!regionManager.isWand(event.getItem()) || event.getClickedBlock() == null) {
             return;
         }
 
         Player player = event.getPlayer();
-        if (!player.hasPermission("karamsmp.regions.wand") && !player.hasPermission(RegionManager.ADMIN_PERMISSION)) {
+        if (!canUseRegionTools(player)) {
             player.sendMessage(ChatColor.RED + "You don't have permission to use this command!");
             event.setCancelled(true);
             return;
         }
 
         if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-            regionManager.setPositionOne(player, event.getClickedBlock().getLocation());
-            player.sendMessage(ChatColor.GREEN + "Region position 1 set to " + formatLocation(event.getClickedBlock().getLocation()) + ".");
+            setPositionOne(player, event.getClickedBlock());
             event.setCancelled(true);
         } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            regionManager.setPositionTwo(player, event.getClickedBlock().getLocation());
-            player.sendMessage(ChatColor.GREEN + "Region position 2 set to " + formatLocation(event.getClickedBlock().getLocation()) + ".");
+            setPositionTwo(player, event.getClickedBlock());
             event.setCancelled(true);
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onWandBlockDamage(BlockDamageEvent event) {
+        if (!regionManager.isWand(event.getItemInHand())) {
+            return;
+        }
+
+        Player player = event.getPlayer();
+        if (!canUseRegionTools(player)) {
+            player.sendMessage(ChatColor.RED + "You don't have permission to use this command!");
+            event.setCancelled(true);
+            return;
+        }
+
+        setPositionOne(player, event.getBlock());
+        event.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -174,6 +194,8 @@ public final class RegionListener implements Listener {
             }
         }
 
+        boolean changedRegions = !fromNames.equals(toNames);
+
         if (plugin.getConfig().getBoolean("regions.messages.send-enter-leave", true)) {
             for (Region region : toRegions) {
                 if (!fromNames.contains(region.getName())) {
@@ -194,6 +216,10 @@ public final class RegionListener implements Listener {
                     }
                 }
             }
+        }
+
+        if (changedRegions && plugin.getScoreboardManager() != null) {
+            plugin.getScoreboardManager().updatePlayer(player);
         }
     }
 
@@ -309,6 +335,22 @@ public final class RegionListener implements Listener {
             names.add(region.getName());
         }
         return names;
+    }
+
+    private boolean canUseRegionTools(Player player) {
+        return player.hasPermission("karamsmp.regions.wand")
+                || player.hasPermission(RegionManager.ADMIN_PERMISSION)
+                || player.hasPermission("karamsmp.admin");
+    }
+
+    private void setPositionOne(Player player, Block block) {
+        regionManager.setPositionOne(player, block.getLocation());
+        player.sendMessage(ChatColor.GREEN + "Region position 1 set to " + formatLocation(block.getLocation()) + ".");
+    }
+
+    private void setPositionTwo(Player player, Block block) {
+        regionManager.setPositionTwo(player, block.getLocation());
+        player.sendMessage(ChatColor.GREEN + "Region position 2 set to " + formatLocation(block.getLocation()) + ".");
     }
 
     private String formatLocation(Location location) {

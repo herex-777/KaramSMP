@@ -24,7 +24,7 @@ public final class ReloadCommand implements CommandExecutor {
         }
 
         plugin.reloadPlugin();
-        sender.sendMessage(ChatColor.GREEN + "KaramSMP reloaded successfully. Config, ranks, TAB, storage, and regions are now updated.");
+        sender.sendMessage(ChatColor.GREEN + "KaramSMP reloaded successfully. Config, ranks, TAB, scoreboards, storage, regions, join messages, and Discord command are now updated.");
         return true;
     }
 }

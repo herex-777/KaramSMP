@@ -40,7 +40,6 @@ public final class NightVisionCommand implements CommandExecutor {
         boolean ambient = plugin.getConfig().getBoolean("night-vision.ambient", false);
         boolean particles = plugin.getConfig().getBoolean("night-vision.show-particles", false);
         boolean icon = plugin.getConfig().getBoolean("night-vision.show-icon", true);
-
         player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, amplifier, ambient, particles, icon));
         player.sendMessage(MessageUtil.color(plugin.getConfig().getString("night-vision.enabled-message", "&aNight vision enabled.")));
         return true;

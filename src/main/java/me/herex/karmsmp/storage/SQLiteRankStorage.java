@@ -36,6 +36,7 @@ public final class SQLiteRankStorage implements RankStorage {
         }
 
         connection = DriverManager.getConnection("jdbc:sqlite:" + file.getAbsolutePath());
+        configureConnection();
         createTable();
     }
 
@@ -105,6 +106,14 @@ public final class SQLiteRankStorage implements RankStorage {
         return "SQLite";
     }
 
+    private void configureConnection() throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            statement.execute("PRAGMA journal_mode=WAL");
+            statement.execute("PRAGMA synchronous=NORMAL");
+            statement.execute("PRAGMA busy_timeout=5000");
+        }
+    }
+
     private void createTable() throws SQLException {
         String sql = "CREATE TABLE IF NOT EXISTS " + tableName + " ("
                 + "uuid TEXT NOT NULL PRIMARY KEY,"
@@ -115,6 +124,7 @@ public final class SQLiteRankStorage implements RankStorage {
 
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);
+            statement.executeUpdate("CREATE INDEX IF NOT EXISTS idx_" + tableName + "_rank_name ON " + tableName + " (rank_name)");
         }
     }
 

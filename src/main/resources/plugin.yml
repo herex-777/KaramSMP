@@ -1,10 +1,10 @@
 name: KaramSMP
-version: '0.4'
+version: '0.7'
 main: me.herex.karmsmp.KaramSMP
 api-version: '1.21'
 author: Herex._.7
 softdepend: [PlaceholderAPI]
-description: Adds /gmsp toggle, /nv night vision, configurable TAB, ranks, placeholders, databases, regions, scoreboards, join messages, and /discord.
+description: Adds /gmsp toggle, /nightvision, configurable TAB, ranks, placeholders, databases, regions, scoreboards with hex colors, join messages, and /discord.
 commands:
   gmsp:
     description: Toggle yourself between spectator mode and survival mode.
@@ -42,6 +42,9 @@ commands:
     aliases:
       - regions
       - rg
+      - kregion
+      - kregions
+      - ksmpregion
   kscoreboard:
     description: Manage KaramSMP scoreboards.
     usage: /kscoreboard help
@@ -50,6 +53,9 @@ commands:
       - sb
       - karamsmpscoreboard
 permissions:
+  karamsmp.scoreboard.staff:
+    description: Allows a player to see the staff scoreboard example.
+    default: false
   karamsmp.scoreboards.admin:
     description: Allows a player to manage KaramSMP scoreboards.
     default: op
