@@ -10,6 +10,8 @@
 # %kills%, %deaths%, %mob_kills%, %mobs_killed%, %playtime%, %playtime_ticks%, %ping%
 # %homes%, %max_homes%, %karamsmp_homes%, %karamsmp_max_homes%
 # %balance%, %money%, %balance_plain%, %money_plain%, %karamsmp_balance%, %karamsmp_balance_plain%
+# %shards%, %shards_plain%, %karamsmp_shards%, %karamsmp_shards_plain%, %afk%, %karamsmp_afk%
+# %clearlag_time%, %karamsmp_clearlag_time%
 # Join hover/click placeholders use the player who joined, so %balance% shows the joiner balance.
 # %setting_public_chat%, %karamsmp_setting_public_chat%, %setting_pay_alerts%, etc.
 # %karamsmp_spawn_set%
@@ -776,3 +778,422 @@ clear-lag:
     manual-cleaned: "&8• &bᴄʟᴇᴀʀʟᴀɢ &8» &aStaff removed &b%removed% &aitems/entities from the floor."
     time-left: "&8• &bᴄʟᴇᴀʀʟᴀɢ &8» &7Next clear in &b%time%&7."
     reloaded: "&8• &bᴄʟᴇᴀʀʟᴀɢ &8» &aClearLag settings reloaded."
+
+# Shop System
+# Converted from the DonutShop source and connected to the KaramSMP economy/balance system.
+shop:
+  enabled: true
+  # DonutShop-style shop merged into KaramSMP.
+  # Admin-added items are saved with full ItemStack data, while simple material/name/price entries still work.
+  # Leave empty so everyone can use /shop. Set to "karamsmp.shop.use" if you want a permission requirement.
+  permission: ""
+  admin-permission: "karamsmp.shop.admin"
+  messages:
+    only-players: "&cOnly players can use this command!"
+    disabled: "&cThe shop is disabled."
+    no-permission: "&cYou don't have permission to use this command!"
+    reloaded: "&aShop configuration reloaded!"
+    category-not-found: "&cThat shop category does not exist."
+    economy-disabled: "&cThe economy system is disabled."
+    invalid-price: "&cInvalid price."
+    admin-price-cancelled: "&cItem addition cancelled."
+    not-enough-money: "&cInsufficient funds! Need &e%total%&c."
+    inventory-full: "&cYou don't have enough inventory space."
+    bought: "&aBought &e%amount%x %item% &afor &e%total%&a."
+    admin-enter-price: "&aEnter the price for this item in chat:"
+    admin-added: "&aItem added successfully!"
+    admin-removed: "&cItem removed!"
+    admin-no-space: "&cThis category has no free slots."
+  main-menu:
+    title: "&8Shop"
+    size: 27
+    items:
+      '11':
+        material: END_STONE
+        name: "&eEnd"
+        lore:
+          - "&7Click to view End Shop"
+        category: end
+      '12':
+        material: NETHERRACK
+        name: "&cNether"
+        lore:
+          - "&7Click to view Nether Shop"
+        category: nether
+      '13':
+        material: TOTEM_OF_UNDYING
+        name: "&6Gear"
+        lore:
+          - "&7Click to view Gear Shop"
+        category: gear
+      '14':
+        material: COOKED_BEEF
+        name: "&aFood"
+        lore:
+          - "&7Click to view Food Shop"
+        category: food
+      '15':
+        material: SPAWNER
+        name: "&dSpawner"
+        lore:
+          - "&7Click to view Spawner Shop"
+        category: spawner
+  category:
+    back-slot: 18
+    back-item:
+      material: RED_STAINED_GLASS_PANE
+      name: "&cBack"
+      lore:
+        - "&7Click to return"
+    item-lore:
+      - "&7Buy price: &a%price%"
+      - "&eClick to buy"
+  buy-menu:
+    title: "&8Buy: %item%"
+    max-amount: 2304
+    display-item:
+      name: "&e%item%"
+      lore:
+        - "&7Amount: &f%amount%"
+        - "&7Unit Price: &a%price%"
+        - "&7Total Price: &a%total%"
+  admin:
+    # /adminshop opens this selector. /adminshop <category> opens a category directly.
+    # Right-click a shop item inside the editor to remove it.
+    # Click an item from your inventory while editing, then type a price in chat to add it.
+    selector-title: "&cAdmin: Select Category"
+    editor-title: "&cEdit: %category%"
+  categories:
+    end:
+      title: "&8End Shop"
+      size: 27
+      items:
+        '9':
+          material: ENDER_CHEST
+          name: "&eEnder Chest"
+          price: 2500.0
+        '10':
+          material: ENDER_PEARL
+          name: "&eEnder Pearl"
+          price: 75.0
+        '11':
+          material: END_STONE
+          name: "&eEnd Stone"
+          price: 8.0
+        '12':
+          material: DRAGON_BREATH
+          name: "&eDragon's Breath"
+          price: 1000.0
+        '13':
+          material: END_ROD
+          name: "&eEnd Rod"
+          price: 100.0
+        '14':
+          material: CHORUS_FRUIT
+          name: "&eChorus Fruit"
+          price: 108.0
+        '15':
+          material: POPPED_CHORUS_FRUIT
+          name: "&ePopped Chorus Fruit"
+          price: 24.0
+        '16':
+          material: SHULKER_SHELL
+          name: "&eShulker Shell"
+          price: 350.0
+        '17':
+          material: SHULKER_BOX
+          name: "&eShulker Box"
+          price: 800.0
+    nether:
+      title: "&8Nether Shop"
+      size: 27
+      items:
+        '9':
+          material: BLAZE_ROD
+          name: "&cBlaze Rod"
+          price: 150.0
+        '10':
+          material: NETHER_WART
+          name: "&cNether Wart"
+          price: 96.0
+        '11':
+          material: GLOWSTONE_DUST
+          name: "&cGlowstone Dust"
+          price: 15.0
+        '12':
+          material: MAGMA_CREAM
+          name: "&cMagma Cream"
+          price: 96.0
+        '13':
+          material: GHAST_TEAR
+          name: "&cGhast Tear"
+          price: 350.0
+        '14':
+          material: QUARTZ
+          name: "&cQuartz"
+          price: 30.0
+        '15':
+          material: SOUL_SAND
+          name: "&cSoul Sand"
+          price: 50.0
+        '16':
+          material: MAGMA_BLOCK
+          name: "&cMagma Block"
+          price: 35.0
+        '17':
+          material: CRYING_OBSIDIAN
+          name: "&cCrying Obsidian"
+          price: 150.0
+    gear:
+      title: "&8Gear Shop"
+      size: 27
+      items:
+        '9':
+          material: OBSIDIAN
+          name: "&6Obsidian"
+          price: 100.0
+        '10':
+          material: END_CRYSTAL
+          name: "&6End Crystal"
+          price: 350.0
+        '11':
+          material: RESPAWN_ANCHOR
+          name: "&6Respawn Anchor"
+          price: 1000.0
+        '12':
+          material: GLOWSTONE
+          name: "&6Glowstone"
+          price: 100.0
+        '13':
+          material: TOTEM_OF_UNDYING
+          name: "&6Totem of Undying"
+          price: 1500.0
+        '14':
+          material: ENDER_PEARL
+          name: "&6Ender Pearl"
+          price: 75.0
+        '15':
+          material: GOLDEN_APPLE
+          name: "&6Golden Apple"
+          price: 250.0
+        '16':
+          material: EXPERIENCE_BOTTLE
+          name: "&6Experience Bottle"
+          price: 100.0
+        '17':
+          material: TIPPED_ARROW
+          name: "&6Tipped Arrow"
+          price: 500.0
+    food:
+      title: "&8Food Shop"
+      size: 27
+      items:
+        '9':
+          material: POTATO
+          name: "&aPotato"
+          price: 96.0
+        '10':
+          material: SWEET_BERRIES
+          name: "&aSweet Berries"
+          price: 50.0
+        '11':
+          material: MELON_SLICE
+          name: "&aMelon Slice"
+          price: 36.0
+        '12':
+          material: CARROT
+          name: "&aCarrot"
+          price: 96.0
+        '13':
+          material: APPLE
+          name: "&aApple"
+          price: 25.0
+        '14':
+          material: COOKED_CHICKEN
+          name: "&aCooked Chicken"
+          price: 48.0
+        '15':
+          material: COOKED_BEEF
+          name: "&aSteak"
+          price: 35.0
+        '16':
+          material: GOLDEN_CARROT
+          name: "&aGolden Carrot"
+          price: 120.0
+        '17':
+          material: GOLDEN_APPLE
+          name: "&aGolden Apple"
+          price: 350.0
+    spawner:
+      title: "&8Spawner Shop"
+      size: 27
+      items: {}
+
+
+# Shards System
+# Used by the AFK room reward system and placeholders.
+shards:
+  enabled: true
+  starting-shards: 0.0
+  max-shards: 1000000000000000.0
+  storage:
+    # same-as-database, sqlite, mysql, or yaml
+    type: "same-as-database"
+    sqlite-file: ""
+    sqlite-table: "player_shards"
+    mysql-table: ""
+    yaml-file: "shards.yml"
+
+# Most Money / Balance Top GUI
+leaderboards:
+  money-title: "MOST MONEY (Page %page%/%pages%)"
+  bounty-title: "BOUNTIES"
+  messages:
+    only-players: "&cOnly players can use this command."
+  gui:
+    rows: 6
+    previous-slot: 45
+    refresh-slot: 49
+    next-slot: 53
+  money-item:
+    name: "&e#%position% &f%player%"
+    lore:
+      - "&7Balance: &a%balance%"
+      - ""
+      - "&7This player is ranked &e#%position%&7."
+  bounty-item:
+    name: "&c#%position% &f%player%"
+    lore:
+      - "&7Bounty: &a%bounty%"
+      - ""
+      - "&7Kill this player to claim it."
+  previous-item:
+    material: "ARROW"
+    name: "&ePrevious Page"
+    lore:
+      - "&7Click to go back."
+  next-item:
+    material: "ARROW"
+    name: "&eNext Page"
+    lore:
+      - "&7Click to go next."
+  refresh-item:
+    material: "EMERALD"
+    name: "&aRefresh"
+    lore:
+      - "&7Click to refresh"
+  bounty-refresh-item:
+    material: "SKELETON_SKULL"
+    name: "&aBOUNTIES"
+    lore:
+      - "&7Click to refresh"
+      - ""
+      - "&7Set a bounty using this:"
+      - "&f/bounty add <player> <amount>"
+
+# Bounty System
+bounties:
+  enabled: true
+  data-file: "bounties.yml"
+  allow-self: false
+  messages:
+    disabled: "&cBounties are disabled."
+    player-not-found: "&cThat player was not found."
+    cannot-bounty-self: "&cYou can't bounty yourself."
+    not-enough-money: "&cYou don't have enough money to set that bounty."
+    invalid-amount: "&cPlease enter a valid amount. Examples: 100, 1K, 2.5M."
+    added: "&8• &cBOUNTY &8» &e%player% &7placed &a%amount% &7on &e%target%&7."
+    claimed: "&8• &cBOUNTY &8» &e%killer% &7claimed &a%amount% &7from &e%player%&7."
+
+# AFK Room / Shards System
+# /setafkroom sets the room. /afk teleports players there after the countdown.
+afk:
+  enabled: true
+  data-file: "afkroom.yml"
+  teleport-delay-seconds: 5
+  room-radius: 8.0
+  invisible: true
+  hide-players: true
+  shards:
+    interval-seconds: 60
+    amount: 1.0
+    sound:
+      name: "ENTITY_EXPERIENCE_ORB_PICKUP"
+      volume: 1.0
+      pitch: 1.2
+  messages:
+    only-players: "&cOnly players can use this command."
+    no-permission: "&cYou don't have permission to use this command!"
+    disabled: "&cThe AFK room is disabled."
+    not-set: "&8• &bAFK &8» &cThe AFK room has not been set yet."
+    room-set: "&8• &bAFK &8» &aAFK room has been set."
+    already-teleporting: "&8• &bAFK &8» &cYou are already teleporting."
+    teleport-start: "&8• &bAFK &8» &7Teleporting in &b%seconds% &7seconds. &8(Don't move!)"
+    teleport-cancelled: "&8• &bAFK &8» &cTeleport cancelled because you moved!"
+    entered: "&8• &bAFK &8» &aYou entered the AFK room."
+    left: "&8• &bAFK &8» &7You left the AFK room."
+    actionbar-countdown: "&bAFK room in &f%seconds% &bseconds..."
+    actionbar-cancelled: "&cAFK teleport cancelled!"
+    actionbar-shard-countdown: "&7Next shard in &b%seconds%s"
+
+# Auction House System
+# Merged from the uploaded DonutAction project: /auction, /ah, /sell, search, sort, filter, your listings, transactions, shulker preview, and auto-expiry.
+auction-house:
+  enabled: true
+  duration-hours: 24
+  max-duration-hours: 720
+  max-listings-per-player: 10
+  admin-max-listings: 100
+  min-price: 0.01
+  tax-rate: 0.05
+  cleanup-interval-ticks: 1200
+  max-saved-transactions: 5000
+  storage:
+    folder: "data/auction-house"
+    auctions-file: "auctions.yml"
+    transactions-file: "transactions.yml"
+  gui:
+    main-title: "ᴀᴜᴄᴛɪᴏɴ ʜᴏᴜꜱᴇ (Page %page%/%pages%)"
+    sell-title: "ꜱᴇʟʟ ɪᴛᴇᴍ"
+    sell-confirm-title: "ᴄᴏɴꜰɪʀᴍ ꜱᴇʟʟ"
+    player-items-title: "ʏᴏᴜʀ ɪᴛᴇᴍꜱ"
+    transactions-title: "ᴛʀᴀɴꜱᴀᴄᴛɪᴏɴꜱ"
+    cancel-title: "ᴄᴀɴᴄᴇʟ ʟɪꜱᴛɪɴɢ"
+    shulker-title: "&6&lShulker Box Preview"
+  sounds:
+    click: "UI_BUTTON_CLICK"
+    success: "BLOCK_NOTE_BLOCK_PLING"
+    error: "ENTITY_VILLAGER_NO"
+  messages:
+    only-players: "&cOnly players can use this command."
+    disabled: "&cThe auction house is disabled."
+    no-permission: "&cYou don't have permission to use this command!"
+    no-permission-sell: "&cYou don't have permission to sell items!"
+    reloaded: "&aAuction house reloaded."
+    sell-usage: "&cUsage: /ah sell <price>"
+    invalid-price: "&cInvalid price! Please enter a valid number. Examples: 100, 1K, 2.5M."
+    price-too-low: "&cPrice must be at least &e%price%&c."
+    max-listings: "&cYou already have the maximum amount of auction listings."
+    no-item: "&cYou must hold an item to sell!"
+    no-item-center: "&cPlease place an item in the center slot!"
+    sell-slot-full: "&cThe sell slot is already occupied!"
+    price-prompt: "&aType the price for this item:"
+    sell-cancelled: "&cSelling cancelled."
+    item-changed: "&cYou must still hold the same item to list it."
+    listed: "&aSuccessfully listed &e%item% &afor &e%price%&a!"
+    bought: "&aSuccessfully purchased &e%item%&a for &e%price%&a!"
+    sold: "&aYour &e%item% &asold for &e%price%&a!"
+    cancelled: "&aSuccessfully cancelled listing!"
+    expired: "&eYour auction listing expired and was returned."
+    auction-not-found: "&cAuction not found."
+    auction-expired: "&cThat auction has expired."
+    cannot-buy-own: "&cYou cannot buy your own item!"
+    inventory-full: "&cYour inventory is full!"
+    not-enough-money: "&cYou don't have enough money!"
+    search-prompt: "&aType the item name you want to search for:"
+    search-cancel-help: "&7Type 'cancel' to cancel."
+    search-cancelled: "&cSearch cancelled."
+    searching: "&aSearching for: &f%query%"
+    transaction-search-prompt: "&aType the item name to search in your transactions:"
+    sort-changed: "&aSort mode changed to: &f%sort%"
+    filter-changed: "&aFilter changed to: &f%filter%"

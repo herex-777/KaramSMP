@@ -1,10 +1,10 @@
 name: KaramSMP
-version: '1.3'
+version: '1.8'
 main: me.herex.karmsmp.KaramSMP
 api-version: '1.21'
 author: Herex._.7
 softdepend: [PlaceholderAPI]
-description: Adds /gmsp toggle, /nightvision, stats GUI, balances, staff balance commands, /pay, optimized /rtp GUI, ClearLag, /settings GUI, configurable TAB, ranks, placeholders, databases, regions, scoreboards, homes, spawn, double jump, /guide, /store, and /discord.
+description: Adds /gmsp toggle, nightvision, shop GUI, auction house, stats, balances, shards, bounties, most money GUI, AFK room rewards, /pay, optimized RTP, ClearLag, /settings GUI, TAB, ranks, placeholders, databases, regions, scoreboards, homes, spawn, double jump, guide/store, and Discord.
 commands:
   gmsp:
     description: Toggle yourself between spectator mode and survival mode.
@@ -39,8 +39,31 @@ commands:
     description: Shows the server store link.
     usage: /store
     aliases:
-      - shop
       - karamsmpstore
+  shop:
+    description: Opens the KaramSMP shop GUI.
+    usage: /shop [reload]
+    aliases:
+      - market
+      - donutshop
+  auction:
+    description: Opens the KaramSMP auction house.
+    usage: /auction [sell|search|mine|transactions|reload]
+    aliases:
+      - ah
+      - auctions
+  sell:
+    description: Sell the item in your hand or open the sell GUI.
+    usage: /sell [price]
+    aliases:
+      - auctionsell
+      - ahsell
+  adminshop:
+    description: Opens the KaramSMP admin shop editor.
+    usage: /adminshop
+    aliases:
+      - shopadmin
+      - ashop
   home:
     description: Opens your homes GUI or teleports to a home.
     usage: /home [name]
@@ -89,6 +112,27 @@ commands:
     aliases:
       - randomtp
       - randomteleport
+  mostmoney:
+    description: Opens the most money leaderboard GUI.
+    usage: /mostmoney
+    aliases:
+      - baltop
+      - moneytop
+      - balancetop
+  paltop:
+    description: Opens the most money leaderboard GUI.
+    usage: /paltop
+  bounty:
+    description: Opens the bounties GUI or adds a bounty.
+    usage: /bounty [add <player> <amount>]
+    aliases:
+      - bounties
+  afk:
+    description: Teleports you to or from the AFK room.
+    usage: /afk
+  setafkroom:
+    description: Sets the AFK room location.
+    usage: /setafkroom
   clearlag:
     description: Shows or runs the KaramSMP ClearLag cleaner.
     usage: /clearlag [time|now|reload]
@@ -119,6 +163,33 @@ commands:
       - sb
       - karamsmpscoreboard
 permissions:
+  karamsmp.auction.use:
+    description: Allows a player to use the KaramSMP auction house.
+    default: true
+  karamsmp.auction.sell:
+    description: Allows a player to sell items in the KaramSMP auction house.
+    default: true
+  karamsmp.auction.admin:
+    description: Allows a player to reload/admin the KaramSMP auction house.
+    default: op
+  karamsmp.auction.bypasslimit:
+    description: Allows a player to bypass normal auction listing limits.
+    default: op
+  karamsmp.afk.set:
+    description: Allows a player to set the AFK room.
+    default: op
+  karamsmp.bounty.use:
+    description: Allows a player to open and use bounties.
+    default: true
+  karamsmp.leaderboards.use:
+    description: Allows a player to open leaderboard GUIs.
+    default: true
+  karamsmp.shop.use:
+    description: Allows a player to use /shop when shop.permission is set to karamsmp.shop.use.
+    default: true
+  karamsmp.shop.admin:
+    description: Allows a player to reload and edit the KaramSMP shop.
+    default: op
   karamsmp.settings.admin:
     description: Reserved permission for future KaramSMP settings admin tools.
     default: op
@@ -172,6 +243,15 @@ permissions:
       karamsmp.rtp.admin: true
       karamsmp.settings.admin: true
       karamsmp.clearlag.admin: true
+      karamsmp.shop.admin: true
+      karamsmp.shop.use: true
+      karamsmp.auction.use: true
+      karamsmp.auction.sell: true
+      karamsmp.auction.admin: true
+      karamsmp.auction.bypasslimit: true
+      karamsmp.afk.set: true
+      karamsmp.bounty.use: true
+      karamsmp.leaderboards.use: true
   karamsmp.admin.ranks:
     description: Allows a player to manage KaramSMP ranks and player ranks.
     default: op

@@ -86,6 +86,9 @@ public final class KaramSMPPlaceholderExpansion extends PlaceholderExpansion {
             case "ping" -> String.valueOf(PlayerStatsUtil.getPing(player));
             case "balance", "balance_formatted", "money" -> plugin.getEconomyManager() == null ? "$0" : plugin.getEconomyManager().format(plugin.getEconomyManager().getBalance(player));
             case "balance_plain", "money_plain" -> plugin.getEconomyManager() == null ? "0" : plugin.getEconomyManager().formatPlain(plugin.getEconomyManager().getBalance(player));
+            case "shards", "shards_formatted" -> plugin.getShardManager() == null ? "0" : plugin.getShardManager().format(plugin.getShardManager().getShards(player));
+            case "shards_plain" -> plugin.getShardManager() == null ? "0" : plugin.getShardManager().formatPlain(plugin.getShardManager().getShards(player));
+            case "afk" -> plugin.getAfkManager() == null ? "false" : String.valueOf(plugin.getAfkManager().isAfk(player));
             case "region", "top_region", "regions_top" -> plugin.getRegionManager() == null ? "none" : plugin.getRegionManager().getTopRegionPlaceholder(player);
             case "regions", "region_list", "regions_list" -> plugin.getRegionManager() == null ? "none" : plugin.getRegionManager().getRegionsPlaceholder(player);
             case "region_count", "regions_count" -> plugin.getRegionManager() == null ? "0" : plugin.getRegionManager().getRegionCountPlaceholder(player);
@@ -93,6 +96,8 @@ public final class KaramSMPPlaceholderExpansion extends PlaceholderExpansion {
             case "homes", "home_count" -> plugin.getHomeManager() == null ? "0" : String.valueOf(plugin.getHomeManager().getHomes(player).size());
             case "max_homes", "homes_max" -> plugin.getHomeManager() == null ? "0" : String.valueOf(plugin.getHomeManager().getMaxHomes(player));
             case "spawn_set" -> plugin.getSpawnManager() == null ? "false" : String.valueOf(plugin.getSpawnManager().hasSpawn());
+            case "auction_items", "auction_listings" -> plugin.getAuctionHouseManager() == null ? "0" : String.valueOf(plugin.getAuctionHouseManager().getActiveAuctionCount());
+            case "my_auction_items", "my_auction_listings" -> plugin.getAuctionHouseManager() == null ? "0" : String.valueOf(plugin.getAuctionHouseManager().getPlayerAuctionCount(player.getUniqueId()));
             default -> null;
         };
     }

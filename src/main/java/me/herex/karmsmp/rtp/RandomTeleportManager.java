@@ -2,9 +2,8 @@ package me.herex.karmsmp.rtp;
 
 import me.herex.karmsmp.KaramSMP;
 import me.herex.karmsmp.utils.MessageUtil;
+import me.herex.karmsmp.utils.ActionBarUtil;
 import me.herex.karmsmp.utils.SoundUtil;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -348,11 +347,7 @@ public final class RandomTeleportManager implements CommandExecutor, TabComplete
 
     private void sendActionBar(Player player, String message) {
         String colored = plugin.getRankManager().applyPlaceholders(player, message);
-        try {
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(colored));
-        } catch (Throwable ignored) {
-            player.sendMessage(colored);
-        }
+        ActionBarUtil.send(player, colored);
     }
 
     private void playSound(Player player, String path) {

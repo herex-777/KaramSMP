@@ -15,6 +15,11 @@ import me.herex.karmsmp.commands.SettingsCommand;
 import me.herex.karmsmp.commands.SpawnCommand;
 import me.herex.karmsmp.commands.StatsCommand;
 import me.herex.karmsmp.commands.ReloadCommand;
+import me.herex.karmsmp.afk.AfkManager;
+import me.herex.karmsmp.auction.AuctionHouseManager;
+import me.herex.karmsmp.leaderboards.BountyManager;
+import me.herex.karmsmp.leaderboards.LeaderboardCommand;
+import me.herex.karmsmp.shards.ShardManager;
 import me.herex.karmsmp.hooks.KaramSMPPlaceholderExpansion;
 import me.herex.karmsmp.economy.EconomyManager;
 import me.herex.karmsmp.homes.HomeManager;
@@ -34,11 +39,15 @@ import me.herex.karmsmp.scoreboards.KaramScoreboardManager;
 import me.herex.karmsmp.spawn.SpawnManager;
 import me.herex.karmsmp.rtp.RandomTeleportManager;
 import me.herex.karmsmp.settings.SettingsManager;
+import me.herex.karmsmp.shop.ShopManager;
 import me.herex.karmsmp.storage.StorageManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.function.Supplier;
 
 public final class KaramSMP extends JavaPlugin {
 
@@ -55,6 +64,11 @@ public final class KaramSMP extends JavaPlugin {
     private SettingsManager settingsManager;
     private DiscordCommand discordCommand;
     private ClearLagManager clearLagManager;
+    private ShopManager shopManager;
+    private ShardManager shardManager;
+    private BountyManager bountyManager;
+    private AfkManager afkManager;
+    private AuctionHouseManager auctionHouseManager;
 
     @Override
     public void onEnable() {
@@ -75,9 +89,18 @@ public final class KaramSMP extends JavaPlugin {
         spawnManager.load();
         economyManager = new EconomyManager(this);
         economyManager.load();
+        shardManager = new ShardManager(this);
+        shardManager.load();
+        bountyManager = new BountyManager(this);
+        bountyManager.load();
         randomTeleportManager = new RandomTeleportManager(this);
         settingsManager = new SettingsManager(this);
         clearLagManager = new ClearLagManager(this);
+        shopManager = new ShopManager(this, economyManager);
+        auctionHouseManager = new AuctionHouseManager(this, economyManager);
+        auctionHouseManager.load();
+        afkManager = new AfkManager(this);
+        afkManager.load();
         discordCommand = new DiscordCommand(this);
 
         registerCommands();
@@ -86,9 +109,11 @@ public final class KaramSMP extends JavaPlugin {
 
         Bukkit.getOnlinePlayers().forEach(rankManager::loadPlayer);
         Bukkit.getOnlinePlayers().forEach(player -> economyManager.getBalance(player));
+        Bukkit.getOnlinePlayers().forEach(player -> shardManager.getShards(player));
         tabManager.start();
         scoreboardManager.start();
         clearLagManager.start();
+        auctionHouseManager.start();
         playerDisplayManager.updateAllPlayers();
         sendStartupMessage();
     }
@@ -119,6 +144,18 @@ public final class KaramSMP extends JavaPlugin {
         if (settingsManager != null) {
             settingsManager.save();
         }
+        if (afkManager != null) {
+            afkManager.stop();
+        }
+        if (auctionHouseManager != null) {
+            auctionHouseManager.stop();
+        }
+        if (bountyManager != null) {
+            bountyManager.save();
+        }
+        if (shardManager != null) {
+            shardManager.close();
+        }
         if (economyManager != null) {
             economyManager.close();
         }
@@ -135,10 +172,28 @@ public final class KaramSMP extends JavaPlugin {
         homeManager.load();
         spawnManager.load();
         economyManager.load();
+        if (shardManager != null) {
+            shardManager.load();
+        }
+        if (bountyManager != null) {
+            bountyManager.load();
+        }
+        if (afkManager != null) {
+            afkManager.reload();
+        }
         if (settingsManager != null) {
             settingsManager.reload();
         }
+        if (shopManager != null) {
+            shopManager.reload();
+        }
+        if (auctionHouseManager != null) {
+            auctionHouseManager.reload();
+        }
         Bukkit.getOnlinePlayers().forEach(player -> economyManager.getBalance(player));
+        if (shardManager != null) {
+            Bukkit.getOnlinePlayers().forEach(player -> shardManager.getShards(player));
+        }
         Bukkit.getOnlinePlayers().forEach(rankManager::loadPlayer);
         tabManager.reload();
         scoreboardManager.reload();
@@ -225,6 +280,24 @@ public final class KaramSMP extends JavaPlugin {
         }
         Bukkit.getPluginManager().registerEvents(statsCommand, this);
 
+        LeaderboardCommand leaderboardCommand = new LeaderboardCommand(this, bountyManager);
+        PluginCommand mostMoneyCommand = getCommand("mostmoney");
+        if (mostMoneyCommand != null) {
+            mostMoneyCommand.setExecutor(leaderboardCommand);
+            mostMoneyCommand.setTabCompleter(leaderboardCommand);
+        }
+        PluginCommand palTopCommand = getCommand("paltop");
+        if (palTopCommand != null) {
+            palTopCommand.setExecutor(leaderboardCommand);
+            palTopCommand.setTabCompleter(leaderboardCommand);
+        }
+        PluginCommand bountyCommand = getCommand("bounty");
+        if (bountyCommand != null) {
+            bountyCommand.setExecutor(leaderboardCommand);
+            bountyCommand.setTabCompleter(leaderboardCommand);
+        }
+        Bukkit.getPluginManager().registerEvents(leaderboardCommand, this);
+
         PayCommand payCommand = new PayCommand(this, economyManager);
         PluginCommand payPluginCommand = getCommand("pay");
         if (payPluginCommand != null) {
@@ -237,6 +310,17 @@ public final class KaramSMP extends JavaPlugin {
             rtpCommand.setExecutor(randomTeleportManager);
             rtpCommand.setTabCompleter(randomTeleportManager);
         }
+        PluginCommand afkCommand = getCommand("afk");
+        if (afkCommand != null) {
+            afkCommand.setExecutor(afkManager);
+            afkCommand.setTabCompleter(afkManager);
+        }
+        PluginCommand setAfkRoomCommand = getCommand("setafkroom");
+        if (setAfkRoomCommand != null) {
+            setAfkRoomCommand.setExecutor(afkManager);
+            setAfkRoomCommand.setTabCompleter(afkManager);
+        }
+        Bukkit.getPluginManager().registerEvents(afkManager, this);
 
         SettingsCommand settingsCommand = new SettingsCommand(this, settingsManager);
         PluginCommand settingsPluginCommand = getCommand("settings");
@@ -244,6 +328,30 @@ public final class KaramSMP extends JavaPlugin {
             settingsPluginCommand.setExecutor(settingsCommand);
         }
         Bukkit.getPluginManager().registerEvents(settingsCommand, this);
+
+
+        PluginCommand shopPluginCommand = getCommand("shop");
+        if (shopPluginCommand != null) {
+            shopPluginCommand.setExecutor(shopManager);
+            shopPluginCommand.setTabCompleter(shopManager);
+        }
+
+        PluginCommand adminShopPluginCommand = getCommand("adminshop");
+        if (adminShopPluginCommand != null) {
+            adminShopPluginCommand.setExecutor(shopManager);
+            adminShopPluginCommand.setTabCompleter(shopManager);
+        }
+
+        PluginCommand auctionPluginCommand = getCommand("auction");
+        if (auctionPluginCommand != null && auctionHouseManager != null) {
+            auctionPluginCommand.setExecutor(auctionHouseManager);
+            auctionPluginCommand.setTabCompleter(auctionHouseManager);
+        }
+        PluginCommand sellPluginCommand = getCommand("sell");
+        if (sellPluginCommand != null && auctionHouseManager != null) {
+            sellPluginCommand.setExecutor(auctionHouseManager);
+            sellPluginCommand.setTabCompleter(auctionHouseManager);
+        }
 
         ClearLagCommand clearLagCommand = new ClearLagCommand(this, clearLagManager);
         PluginCommand clearLagPluginCommand = getCommand("clearlag");
@@ -275,14 +383,25 @@ public final class KaramSMP extends JavaPlugin {
     }
 
     private void registerListeners() {
-        Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(this, rankManager, tabManager, playerDisplayManager, scoreboardManager), this);
-        Bukkit.getPluginManager().registerEvents(new DiscordCommandListener(this, discordCommand), this);
-        Bukkit.getPluginManager().registerEvents(new HomeListener(this, homeManager), this);
-        Bukkit.getPluginManager().registerEvents(new SpawnListener(spawnManager), this);
-        Bukkit.getPluginManager().registerEvents(new DoubleJumpListener(this, regionManager), this);
-        Bukkit.getPluginManager().registerEvents(randomTeleportManager, this);
-        Bukkit.getPluginManager().registerEvents(new ChatListener(this, rankManager), this);
-        Bukkit.getPluginManager().registerEvents(new RegionListener(this, regionManager), this);
+        registerListenerSafely("join/quit listener", () -> new PlayerJoinListener(this, rankManager, tabManager, playerDisplayManager, scoreboardManager));
+        registerListenerSafely("discord command listener", () -> new DiscordCommandListener(this, discordCommand));
+        registerListenerSafely("home listener", () -> new HomeListener(this, homeManager));
+        registerListenerSafely("spawn listener", () -> new SpawnListener(spawnManager));
+        registerListenerSafely("double jump listener", () -> new DoubleJumpListener(this, regionManager));
+        registerListenerSafely("random teleport listener", () -> randomTeleportManager);
+        registerListenerSafely("chat listener", () -> new ChatListener(this, rankManager));
+        registerListenerSafely("region listener", () -> new RegionListener(this, regionManager));
+        registerListenerSafely("shop listener", () -> shopManager);
+        registerListenerSafely("bounty listener", () -> bountyManager);
+        registerListenerSafely("auction house listener", () -> auctionHouseManager);
+    }
+
+    private void registerListenerSafely(String name, Supplier<Listener> supplier) {
+        try {
+            Bukkit.getPluginManager().registerEvents(supplier.get(), this);
+        } catch (Throwable throwable) {
+            getLogger().warning("Could not register " + name + ": " + throwable.getClass().getSimpleName() + " - " + throwable.getMessage());
+        }
     }
 
     private void registerPlaceholderAPI() {
@@ -301,7 +420,7 @@ public final class KaramSMP extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + "========================================");
         Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "          KaramSMP v" + getDescription().getVersion());
         Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "     Plugin loaded successfully!");
-        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "     Commands: /gmsp, /nightvision, /home, /spawn, /stats, /settings, /rtp, /pay, /blance, /clearlag, /rank, /region, /kscoreboard, /reload, /discord");
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "     Commands: /gmsp, /nightvision, /shop, /auction, /sell, /home, /spawn, /stats, /settings, /rtp, /pay, /blance, /mostmoney, /bounty, /afk, /clearlag, /rank, /region, /kscoreboard, /reload, /discord");
         Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "     Made by Herex._.7");
         Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + "========================================");
     }
@@ -356,5 +475,25 @@ public final class KaramSMP extends JavaPlugin {
 
     public SettingsManager getSettingsManager() {
         return settingsManager;
+    }
+
+    public ShopManager getShopManager() {
+        return shopManager;
+    }
+
+    public ShardManager getShardManager() {
+        return shardManager;
+    }
+
+    public BountyManager getBountyManager() {
+        return bountyManager;
+    }
+
+    public AfkManager getAfkManager() {
+        return afkManager;
+    }
+
+    public AuctionHouseManager getAuctionHouseManager() {
+        return auctionHouseManager;
     }
 }

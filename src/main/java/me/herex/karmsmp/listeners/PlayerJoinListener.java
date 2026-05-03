@@ -5,11 +5,8 @@ import me.herex.karmsmp.managers.PlayerDisplayManager;
 import me.herex.karmsmp.managers.RankManager;
 import me.herex.karmsmp.managers.TabManager;
 import me.herex.karmsmp.scoreboards.KaramScoreboardManager;
+import me.herex.karmsmp.utils.InteractiveMessageUtil;
 import me.herex.karmsmp.utils.MessageUtil;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,7 +16,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.List;
-import java.util.Locale;
 
 public final class PlayerJoinListener implements Listener {
 
@@ -49,12 +45,13 @@ public final class PlayerJoinListener implements Listener {
         String joinMessage = buildJoinMessage(player);
         event.setJoinMessage(null);
         if (!joinMessage.isBlank()) {
-            Bukkit.getScheduler().runTask(plugin, () -> broadcastJoinMessage(player, joinMessage));
+            Bukkit.getScheduler().runTaskLater(plugin, () -> broadcastJoinMessage(player, joinMessage), 2L);
         }
 
         Bukkit.getScheduler().runTask(plugin, () -> updatePlayerSystems(player));
-        Bukkit.getScheduler().runTaskLater(plugin, () -> updatePlayerSystems(player), 10L);
-        Bukkit.getScheduler().runTaskLater(plugin, () -> updatePlayerSystems(player), 40L);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> updatePlayerSystems(player), 5L);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> updatePlayerSystems(player), 20L);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> updatePlayerSystems(player), 60L);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -108,40 +105,13 @@ public final class PlayerJoinListener implements Listener {
             return;
         }
 
-        try {
-            BaseComponent[] components = TextComponent.fromLegacyText(joinMessage);
-            HoverEvent hoverEvent = hoverEnabled
-                    ? new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(hoverText))
-                    : null;
-            ClickEvent clickEvent = clickEnabled
-                    ? new ClickEvent(resolveClickAction(), clickCommand)
-                    : null;
-
-            TextComponent root = new TextComponent("");
-            if (hoverEvent != null) {
-                root.setHoverEvent(hoverEvent);
-            }
-            if (clickEvent != null) {
-                root.setClickEvent(clickEvent);
-            }
-
-            for (BaseComponent component : components) {
-                if (hoverEvent != null) {
-                    component.setHoverEvent(hoverEvent);
-                }
-                if (clickEvent != null) {
-                    component.setClickEvent(clickEvent);
-                }
-                root.addExtra(component);
-            }
-
-            for (Player online : Bukkit.getOnlinePlayers()) {
-                online.spigot().sendMessage(root);
-            }
-            Bukkit.getConsoleSender().sendMessage(joinMessage);
-        } catch (Throwable throwable) {
-            Bukkit.broadcastMessage(joinMessage);
-        }
+        InteractiveMessageUtil.broadcast(
+                plugin,
+                joinMessage,
+                hoverEnabled ? hoverText : "",
+                clickEnabled ? clickCommand : "",
+                plugin.getConfig().getString("join-messages.click.action", "RUN_COMMAND")
+        );
     }
 
     private String buildHoverText(Player player) {
@@ -173,16 +143,6 @@ public final class PlayerJoinListener implements Listener {
             replaced = "/" + replaced;
         }
         return replaced;
-    }
-
-    private ClickEvent.Action resolveClickAction() {
-        String action = plugin.getConfig().getString("join-messages.click.action", "RUN_COMMAND");
-        if (action == null) {
-            return ClickEvent.Action.RUN_COMMAND;
-        }
-        return action.toUpperCase(Locale.ROOT).contains("SUGGEST")
-                ? ClickEvent.Action.SUGGEST_COMMAND
-                : ClickEvent.Action.RUN_COMMAND;
     }
 
     private void applyQuitMessage(PlayerQuitEvent event) {

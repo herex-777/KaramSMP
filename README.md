@@ -107,3 +107,29 @@ Commands:
 - `/clearlag reload` - restarts the ClearLag timer from config. Requires `karamsmp.clearlag.admin`.
 
 By default it removes dropped items and XP orbs only. More entity types can be enabled in `config.yml`.
+
+## Shop System
+
+KaramSMP includes a DonutShop-style GUI shop connected directly to the built-in KaramSMP balance system.
+
+Commands:
+
+- `/shop` - opens the main shop menu.
+- `/shop reload` - reloads KaramSMP/shop config. Requires `karamsmp.shop.admin`.
+- `/adminshop` - opens the in-game shop editor. Requires `karamsmp.shop.admin`.
+
+Features:
+
+- Category menu with End, Nether, Gear, Food, and Spawner categories.
+- Category GUIs with configurable items/prices in `config.yml`.
+- Buy menu with amount controls: add/remove 1, 10, or 64.
+- Purchases withdraw money from KaramSMP economy balances.
+- Admin GUI can add inventory items to categories by clicking an item and typing its price in chat.
+- Admin GUI can remove category items by right-clicking them.
+
+
+## Shop Merge Notes
+
+Version 1.5.1 includes the DonutShop-style shop merged into KaramSMP. It keeps the main menu, category menu, buy confirmation menu, and admin editor logic, but it uses KaramSMP balances instead of Vault and saves admin-added items with their full ItemStack data.
+
+Commands: `/shop`, `/shop <category>`, `/shop reload`, `/adminshop`, `/adminshop <category>`.

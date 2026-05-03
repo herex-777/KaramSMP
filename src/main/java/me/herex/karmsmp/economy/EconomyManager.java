@@ -15,6 +15,9 @@ import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -205,6 +208,68 @@ public final class EconomyManager {
         } catch (NumberFormatException exception) {
             throw new IllegalArgumentException("Invalid amount.");
         }
+    }
+
+
+    public List<TopBalance> getTopBalances(int limit) {
+        ensureLoaded();
+        int safeLimit = Math.max(1, Math.min(500, limit));
+        return switch (storageType) {
+            case "mysql", "sqlite" -> getSqlTopBalances(safeLimit);
+            case "yaml" -> getYamlTopBalances(safeLimit);
+            default -> List.of();
+        };
+    }
+
+    private List<TopBalance> getSqlTopBalances(int limit) {
+        ensureSqlConnected();
+        List<TopBalance> top = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement("SELECT uuid, username, balance FROM " + tableName + " ORDER BY balance DESC LIMIT ?")) {
+            statement.setInt(1, limit);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    try {
+                        UUID uuid = UUID.fromString(resultSet.getString("uuid"));
+                        String username = resultSet.getString("username");
+                        double balance = resultSet.getDouble("balance");
+                        top.add(new TopBalance(uuid, username == null || username.isBlank() ? uuid.toString() : username, balance));
+                    } catch (IllegalArgumentException ignored) {
+                    }
+                }
+            }
+        } catch (SQLException exception) {
+            plugin.getLogger().warning("Could not load top balances: " + exception.getMessage());
+        }
+        return top;
+    }
+
+    private List<TopBalance> getYamlTopBalances(int limit) {
+        ensureYamlLoaded();
+        List<TopBalance> top = new ArrayList<>();
+        if (yaml.isConfigurationSection("balances")) {
+            for (String key : yaml.getConfigurationSection("balances").getKeys(false)) {
+                try {
+                    UUID uuid = UUID.fromString(key);
+                    String username = yaml.getString("balances." + key + ".username", uuid.toString());
+                    double balance = yaml.getDouble("balances." + key + ".balance", 0.0D);
+                    top.add(new TopBalance(uuid, username == null || username.isBlank() ? uuid.toString() : username, balance));
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
+        }
+        top.addAll(balanceCache.entrySet().stream()
+                .map(entry -> new TopBalance(entry.getKey(), entry.getKey().toString(), entry.getValue()))
+                .toList());
+        return top.stream()
+                .collect(java.util.stream.Collectors.toMap(TopBalance::uuid, item -> item, (first, second) -> first.balance() >= second.balance() ? first : second))
+                .values()
+                .stream()
+                .sorted(Comparator.comparingDouble(TopBalance::balance).reversed())
+                .limit(limit)
+                .toList();
+    }
+
+    public record TopBalance(UUID uuid, String username, double balance) {
     }
 
     public String getStorageName() {

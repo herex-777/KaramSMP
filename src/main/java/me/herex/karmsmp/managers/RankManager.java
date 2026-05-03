@@ -359,13 +359,26 @@ public final class RankManager {
                 .replace("%karamsmp_balance_formatted%", plugin.getEconomyManager() == null ? "$0" : plugin.getEconomyManager().format(plugin.getEconomyManager().getBalance(player)))
                 .replace("%karamsmp_money%", plugin.getEconomyManager() == null ? "$0" : plugin.getEconomyManager().format(plugin.getEconomyManager().getBalance(player)))
                 .replace("%karamsmp_balance_plain%", plugin.getEconomyManager() == null ? "0" : plugin.getEconomyManager().formatPlain(plugin.getEconomyManager().getBalance(player)))
+                .replace("%shards%", plugin.getShardManager() == null ? "0" : plugin.getShardManager().format(plugin.getShardManager().getShards(player)))
+                .replace("%shards_plain%", plugin.getShardManager() == null ? "0" : plugin.getShardManager().formatPlain(plugin.getShardManager().getShards(player)))
+                .replace("%karamsmp_shards%", plugin.getShardManager() == null ? "0" : plugin.getShardManager().format(plugin.getShardManager().getShards(player)))
+                .replace("%karamsmp_shards_formatted%", plugin.getShardManager() == null ? "0" : plugin.getShardManager().format(plugin.getShardManager().getShards(player)))
+                .replace("%karamsmp_shards_plain%", plugin.getShardManager() == null ? "0" : plugin.getShardManager().formatPlain(plugin.getShardManager().getShards(player)))
+                .replace("%afk%", plugin.getAfkManager() == null ? "false" : String.valueOf(plugin.getAfkManager().isAfk(player)))
+                .replace("%karamsmp_afk%", plugin.getAfkManager() == null ? "false" : String.valueOf(plugin.getAfkManager().isAfk(player)))
                 .replace("%homes%", plugin.getHomeManager() == null ? "0" : String.valueOf(plugin.getHomeManager().getHomes(player).size()))
                 .replace("%max_homes%", plugin.getHomeManager() == null ? "0" : String.valueOf(plugin.getHomeManager().getMaxHomes(player)))
                 .replace("%karamsmp_homes%", plugin.getHomeManager() == null ? "0" : String.valueOf(plugin.getHomeManager().getHomes(player).size()))
                 .replace("%karamsmp_max_homes%", plugin.getHomeManager() == null ? "0" : String.valueOf(plugin.getHomeManager().getMaxHomes(player)))
                 .replace("%karamsmp_spawn_set%", plugin.getSpawnManager() == null ? "false" : String.valueOf(plugin.getSpawnManager().hasSpawn()))
                 .replace("%clearlag_time%", plugin.getClearLagManager() == null ? "0s" : plugin.getClearLagManager().getFormattedTimeRemaining())
-                .replace("%karamsmp_clearlag_time%", plugin.getClearLagManager() == null ? "0s" : plugin.getClearLagManager().getFormattedTimeRemaining());
+                .replace("%karamsmp_clearlag_time%", plugin.getClearLagManager() == null ? "0s" : plugin.getClearLagManager().getFormattedTimeRemaining())
+                .replace("%auction_items%", plugin.getAuctionHouseManager() == null ? "0" : String.valueOf(plugin.getAuctionHouseManager().getActiveAuctionCount()))
+                .replace("%auction_listings%", plugin.getAuctionHouseManager() == null ? "0" : String.valueOf(plugin.getAuctionHouseManager().getActiveAuctionCount()))
+                .replace("%karamsmp_auction_items%", plugin.getAuctionHouseManager() == null ? "0" : String.valueOf(plugin.getAuctionHouseManager().getActiveAuctionCount()))
+                .replace("%karamsmp_auction_listings%", plugin.getAuctionHouseManager() == null ? "0" : String.valueOf(plugin.getAuctionHouseManager().getActiveAuctionCount()))
+                .replace("%my_auction_items%", plugin.getAuctionHouseManager() == null ? "0" : String.valueOf(plugin.getAuctionHouseManager().getPlayerAuctionCount(player.getUniqueId())))
+                .replace("%karamsmp_my_auction_items%", plugin.getAuctionHouseManager() == null ? "0" : String.valueOf(plugin.getAuctionHouseManager().getPlayerAuctionCount(player.getUniqueId())));
 
         if (plugin.getScoreboardManager() != null) {
             replaced = replaced
