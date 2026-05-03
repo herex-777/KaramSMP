@@ -11,6 +11,7 @@
 # %homes%, %max_homes%, %karamsmp_homes%, %karamsmp_max_homes%
 # %balance%, %money%, %balance_plain%, %money_plain%, %karamsmp_balance%, %karamsmp_balance_plain%
 # Join hover/click placeholders use the player who joined, so %balance% shows the joiner balance.
+# %setting_public_chat%, %karamsmp_setting_public_chat%, %setting_pay_alerts%, etc.
 # %karamsmp_spawn_set%
 # %karamsmp_kills%, %karamsmp_deaths%, %karamsmp_mob_kills%, %karamsmp_mobs_killed%, %karamsmp_playtime%, %karamsmp_ping%
 
@@ -125,6 +126,135 @@ stats:
         lore:
           - "&7More stats will be added soon."
 
+
+# Player Settings System
+# /settings opens a DonutSMP-style menu. Values are saved in settings.yml per player.
+settings:
+  enabled: true
+  data-file: "settings.yml"
+  gui:
+    title: "<##3F3F3F>Settings"
+    rows: 4
+  status:
+    on-text: "ON"
+    off-text: "OFF"
+    on-color: "<##7AFC00>"
+    off-color: "<##FC0000>"
+  toggle-sound:
+    name: "BLOCK_DISPENSER_FAIL"
+    volume: 1.0
+    pitch: 1.0
+  messages:
+    only-players: "&cOnly players can use this command."
+    disabled: "&cSettings are disabled."
+    public-chat-disabled: "&cYou have public chat disabled. Enable it in /settings to chat."
+    payments-disabled: "&cThat player has payments disabled."
+  options:
+    public-chat:
+      slot: 10
+      material: "OAK_SIGN"
+      name: "<##00F986>ᴘᴜʙʟɪᴄ ᴄʜᴀᴛ"
+      default: true
+      lore:
+        - "&fCurrently: %status_color%&l%status%"
+    private-messages:
+      slot: 11
+      material: "DARK_OAK_SIGN"
+      name: "<##00F986>ᴘʀɪᴠᴀᴛᴇ ᴍᴇꜱꜱᴀɢᴇꜱ"
+      default: true
+      lore:
+        - "&fCurrently: %status_color%&l%status%"
+    chat-server-messages:
+      slot: 12
+      material: "WARPED_SIGN"
+      name: "<##00F986>ᴄʜᴀᴛ ꜱᴇʀᴠᴇʀ ᴍᴇꜱꜱᴀɢᴇꜱ"
+      default: true
+      lore:
+        - "&fCurrently: %status_color%&l%status%"
+    hotbar-server-messages:
+      slot: 13
+      material: "CRIMSON_SIGN"
+      name: "<##00F986>ʜᴏᴛʙᴀʀ ꜱᴇʀᴠᴇʀ ᴍᴇꜱꜱᴀɢᴇꜱ"
+      default: true
+      lore:
+        - "&fCurrently: %status_color%&l%status%"
+    pay-alerts:
+      slot: 14
+      material: "CHERRY_SIGN"
+      name: "<##00F986>ᴘᴀʏ ᴀʟᴇʀᴛꜱ"
+      default: true
+      lore:
+        - "&fCurrently: %status_color%&l%status%"
+    bounty-alerts:
+      slot: 15
+      material: "BAMBOO_SIGN"
+      name: "<##00F986>ʙᴏᴜɴᴛʏ ᴀʟᴇʀᴛꜱ"
+      default: true
+      lore:
+        - "&fCurrently: %status_color%&l%status%"
+    auction-alerts:
+      slot: 16
+      material: "ACACIA_SIGN"
+      name: "<##00F986>ᴀᴜᴄᴛɪᴏɴ ᴀʟᴇʀᴛꜱ"
+      default: true
+      lore:
+        - "&fCurrently: %status_color%&l%status%"
+    fast-crystals:
+      slot: 19
+      material: "END_CRYSTAL"
+      name: "<##00F986>ꜰᴀꜱᴛ ᴄʀʏꜱᴛᴀʟꜱ"
+      default: true
+      lore:
+        - "&fCurrently: %status_color%&l%status%"
+    tpa-requests:
+      slot: 20
+      material: "ENDER_PEARL"
+      name: "<##00F986>ᴛᴘᴀ ʀᴇqᴜᴇꜱᴛꜱ"
+      default: true
+      lore:
+        - "&fCurrently: %status_color%&l%status%"
+    tpa-here-requests:
+      slot: 21
+      material: "ENDER_EYE"
+      name: "<##00F986>ᴛᴘᴀ ʜᴇʀᴇ ʀᴇqᴜᴇꜱᴛꜱ"
+      default: true
+      lore:
+        - "&fCurrently: %status_color%&l%status%"
+    team-invites:
+      slot: 22
+      material: "SHIELD"
+      name: "<##00F986>ᴛᴇᴀᴍ ɪɴᴠɪᴛᴇꜱ"
+      default: true
+      lore:
+        - "&fCurrently: %status_color%&l%status%"
+    payments:
+      slot: 23
+      material: "EMERALD"
+      name: "<##00F986>ᴘᴀʏᴍᴇɴᴛꜱ"
+      default: true
+      lore:
+        - "&fCurrently: %status_color%&l%status%"
+    team-chat:
+      slot: 24
+      material: "BELL"
+      name: "<##00F986>ᴛᴇᴀᴍ ᴄʜᴀᴛ"
+      default: false
+      lore:
+        - "&fCurrently: %status_color%&l%status%"
+    do-not-disturb:
+      slot: 25
+      material: "PAPER"
+      name: "<##00F986>ᴅᴏ ɴᴏᴛ ᴅɪꜱᴛʀᴜʙ"
+      default: false
+      lore:
+        - "&7Tired of spam tpa messages?"
+        - "&7We're trying to improve our chat"
+        - "&7enable this setting and try it out"
+        - "&7give us feedback in /discord."
+        - "&fCurrently: %status_color%&l%status%"
+        - ""
+        - "<##00F986>ᴘʀᴏᴛᴏᴛʏᴘᴇ ꜱʏꜱᴛᴇᴍ"
+
 # Random Teleport System
 rtp:
   enabled: true
@@ -230,6 +360,8 @@ join-messages:
   message: "&8[&a+&8] %karamsmp_ranks_prefix%%player% &ejoined the server."
   first-join-enabled: false
   first-join-message: "&8[&a+&8] %karamsmp_ranks_prefix%%player%%karamsmp_ranks_suffix% &7joined for the first time. &eWelcome!"
+  # Keeps the player name clean after the rank prefix. Set to "" to let the rank color continue into the name.
+  player-name-color: "&f"
   hover:
     enabled: true
     text:
@@ -607,3 +739,40 @@ ranks:
     suffix: ""
     priority: 0
     permissions: []
+
+# ClearLag System
+# Automatically removes dropped entities to reduce lag. Default: every 15 minutes.
+clear-lag:
+  enabled: true
+  interval-seconds: 900
+  warning-seconds:
+    - 60
+    - 30
+    - 15
+    - 5
+    - 4
+    - 3
+    - 2
+    - 1
+  disabled-worlds: []
+  remove:
+    dropped-items: true
+    experience-orbs: true
+    projectiles: false
+    falling-blocks: false
+    primed-tnt: false
+    vehicles: false
+    # Keeps items that were renamed in an anvil or have a custom entity name.
+    exclude-named-items: true
+    # Example:
+    # exclude-materials:
+    #   - "DIAMOND"
+    #   - "NETHERITE_INGOT"
+    exclude-materials: []
+  messages:
+    no-permission: "&cYou don't have permission to use this command!"
+    warning: "&7removing all of the items on the floor in &b%seconds% &7seconds."
+    cleaned: "&8• &bᴄʟᴇᴀʀʟᴀɢ &8» &aRemoved &b%removed% &aitems/entities from the floor."
+    manual-cleaned: "&8• &bᴄʟᴇᴀʀʟᴀɢ &8» &aStaff removed &b%removed% &aitems/entities from the floor."
+    time-left: "&8• &bᴄʟᴇᴀʀʟᴀɢ &8» &7Next clear in &b%time%&7."
+    reloaded: "&8• &bᴄʟᴇᴀʀʟᴀɢ &8» &aClearLag settings reloaded."

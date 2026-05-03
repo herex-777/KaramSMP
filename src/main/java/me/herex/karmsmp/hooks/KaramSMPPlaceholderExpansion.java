@@ -3,6 +3,8 @@ package me.herex.karmsmp.hooks;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.herex.karmsmp.KaramSMP;
 import me.herex.karmsmp.managers.Rank;
+import me.herex.karmsmp.settings.SettingOption;
+import me.herex.karmsmp.settings.SettingsManager;
 import me.herex.karmsmp.utils.MessageUtil;
 import me.herex.karmsmp.utils.PlayerStatsUtil;
 import org.bukkit.Bukkit;
@@ -46,6 +48,21 @@ public final class KaramSMPPlaceholderExpansion extends PlaceholderExpansion {
 
         Rank rank = plugin.getRankManager().getRank(player);
         String key = params.toLowerCase();
+
+        if (plugin.getSettingsManager() != null && key.startsWith("setting_")) {
+            String settingKey = key.substring("setting_".length());
+            boolean enabledOnly = settingKey.endsWith("_enabled");
+            if (enabledOnly) {
+                settingKey = settingKey.substring(0, settingKey.length() - "_enabled".length());
+            }
+            for (SettingOption option : plugin.getSettingsManager().getOptions()) {
+                if (SettingsManager.placeholderKey(option.getId()).equals(settingKey)) {
+                    return enabledOnly
+                            ? String.valueOf(plugin.getSettingsManager().isEnabled(player, option.getId()))
+                            : plugin.getSettingsManager().getStatusText(player, option.getId());
+                }
+            }
+        }
 
         return switch (key) {
             case "rank", "rank_name", "ranks_name" -> rank.getName();

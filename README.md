@@ -95,3 +95,15 @@ RTP safe-location searching now runs across multiple ticks using `rtp.attempts-p
 Default GUI items include balance, kills, mobs killed, playtime, deaths, ping, and a red banner named `Coming Soon...`. Edit the `stats:` section in `config.yml` to change slots, materials, names, and lore.
 
 Stats placeholders include `%mob_kills%`, `%mobs_killed%`, and `%karamsmp_mob_kills%`.
+
+## ClearLag
+
+KaramSMP now includes an automatic ClearLag cleaner. By default it runs every 15 minutes and announces at 60, 30, 15, 5, 4, 3, 2, and 1 seconds before cleanup.
+
+Commands:
+
+- `/clearlag` or `/clearlag time` - shows the next cleanup time.
+- `/clearlag now` - manually clears configured lag entities. Requires `karamsmp.clearlag.admin`.
+- `/clearlag reload` - restarts the ClearLag timer from config. Requires `karamsmp.clearlag.admin`.
+
+By default it removes dropped items and XP orbs only. More entity types can be enabled in `config.yml`.

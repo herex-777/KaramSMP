@@ -50,6 +50,10 @@ public final class PayCommand implements CommandExecutor, TabCompleter {
             player.sendMessage(color("economy.messages.cannot-pay-self", "&cYou can't pay yourself."));
             return true;
         }
+        if (plugin.getSettingsManager() != null && !plugin.getSettingsManager().isEnabled(target, "payments")) {
+            player.sendMessage(MessageUtil.color(plugin.getConfig().getString("settings.messages.payments-disabled", "&cThat player has payments disabled.")));
+            return true;
+        }
 
         double amount;
         try {
@@ -72,7 +76,9 @@ public final class PayCommand implements CommandExecutor, TabCompleter {
 
         economyManager.deposit(target.getUniqueId(), target.getName(), amount);
         player.sendMessage(format(player, "economy.messages.pay-sent", "&8• &aᴘᴀʏ &8» &fYou sent &a%amount% &fto &e%player%&f.", target.getName(), amount));
-        target.sendMessage(format(target, "economy.messages.pay-received", "&8• &aᴘᴀʏ &8» &fYou received &a%amount% &ffrom &e%player%&f.", player.getName(), amount));
+        if (plugin.getSettingsManager() == null || plugin.getSettingsManager().isEnabled(target, "pay-alerts")) {
+            target.sendMessage(format(target, "economy.messages.pay-received", "&8• &aᴘᴀʏ &8» &fYou received &a%amount% &ffrom &e%player%&f.", player.getName(), amount));
+        }
         return true;
     }
 

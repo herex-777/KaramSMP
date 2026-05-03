@@ -12,7 +12,7 @@ public final class MessageUtil {
     private static final char COLOR_CHAR = '\u00A7';
     private static final int HEX_COLOR_LENGTH = 14;
     private static final Pattern AMP_HEX_PATTERN = Pattern.compile("&?#([A-Fa-f0-9]{6})");
-    private static final Pattern TAG_HEX_PATTERN = Pattern.compile("<#([A-Fa-f0-9]{6})>");
+    private static final Pattern TAG_HEX_PATTERN = Pattern.compile("<##?([A-Fa-f0-9]{6})>");
     private static final Pattern ZERO_WIDTH_PATTERN = Pattern.compile("[\\u200B\\u200C\\u200D\\u200E\\u200F\\uFEFF]");
 
     private MessageUtil() {
@@ -20,7 +20,7 @@ public final class MessageUtil {
 
     /**
      * Supports legacy Bukkit color codes (&a, &l, etc.) and RGB hex colors.
-     * Hex examples: &#00AAFF, #00AAFF, <#00AAFF>
+     * Hex examples: &#00AAFF, #00AAFF, <#00AAFF>, <##00AAFF>
      */
     public static String color(String message) {
         if (message == null) {

@@ -3,6 +3,8 @@ package me.herex.karmsmp.managers;
 import me.herex.karmsmp.KaramSMP;
 import me.herex.karmsmp.hooks.PlaceholderAPIUtil;
 import me.herex.karmsmp.storage.StorageManager;
+import me.herex.karmsmp.settings.SettingOption;
+import me.herex.karmsmp.settings.SettingsManager;
 import me.herex.karmsmp.utils.MessageUtil;
 import me.herex.karmsmp.utils.PlayerStatsUtil;
 import org.bukkit.Bukkit;
@@ -361,7 +363,9 @@ public final class RankManager {
                 .replace("%max_homes%", plugin.getHomeManager() == null ? "0" : String.valueOf(plugin.getHomeManager().getMaxHomes(player)))
                 .replace("%karamsmp_homes%", plugin.getHomeManager() == null ? "0" : String.valueOf(plugin.getHomeManager().getHomes(player).size()))
                 .replace("%karamsmp_max_homes%", plugin.getHomeManager() == null ? "0" : String.valueOf(plugin.getHomeManager().getMaxHomes(player)))
-                .replace("%karamsmp_spawn_set%", plugin.getSpawnManager() == null ? "false" : String.valueOf(plugin.getSpawnManager().hasSpawn()));
+                .replace("%karamsmp_spawn_set%", plugin.getSpawnManager() == null ? "false" : String.valueOf(plugin.getSpawnManager().hasSpawn()))
+                .replace("%clearlag_time%", plugin.getClearLagManager() == null ? "0s" : plugin.getClearLagManager().getFormattedTimeRemaining())
+                .replace("%karamsmp_clearlag_time%", plugin.getClearLagManager() == null ? "0s" : plugin.getClearLagManager().getFormattedTimeRemaining());
 
         if (plugin.getScoreboardManager() != null) {
             replaced = replaced
@@ -374,6 +378,19 @@ public final class RankManager {
                     .replace("%karamsmp_region%", plugin.getRegionManager().getTopRegionPlaceholder(player))
                     .replace("%karamsmp_regions%", plugin.getRegionManager().getRegionsPlaceholder(player))
                     .replace("%karamsmp_region_count%", plugin.getRegionManager().getRegionCountPlaceholder(player));
+        }
+
+        if (plugin.getSettingsManager() != null) {
+            for (SettingOption option : plugin.getSettingsManager().getOptions()) {
+                String key = SettingsManager.placeholderKey(option.getId());
+                String status = plugin.getSettingsManager().getStatusText(player, option.getId());
+                String enabled = String.valueOf(plugin.getSettingsManager().isEnabled(player, option.getId()));
+                replaced = replaced
+                        .replace("%setting_" + key + "%", status)
+                        .replace("%karamsmp_setting_" + key + "%", status)
+                        .replace("%setting_" + key + "_enabled%", enabled)
+                        .replace("%karamsmp_setting_" + key + "_enabled%", enabled);
+            }
         }
 
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {

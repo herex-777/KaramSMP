@@ -4,12 +4,14 @@ import me.herex.karmsmp.commands.DiscordCommand;
 import me.herex.karmsmp.commands.GameModeCommand;
 import me.herex.karmsmp.commands.HomeCommand;
 import me.herex.karmsmp.commands.BalanceCommand;
+import me.herex.karmsmp.commands.ClearLagCommand;
 import me.herex.karmsmp.commands.PayCommand;
 import me.herex.karmsmp.commands.InfoCommand;
 import me.herex.karmsmp.commands.RankCommand;
 import me.herex.karmsmp.commands.RegionCommand;
 import me.herex.karmsmp.commands.NightVisionCommand;
 import me.herex.karmsmp.commands.ScoreboardCommand;
+import me.herex.karmsmp.commands.SettingsCommand;
 import me.herex.karmsmp.commands.SpawnCommand;
 import me.herex.karmsmp.commands.StatsCommand;
 import me.herex.karmsmp.commands.ReloadCommand;
@@ -26,10 +28,12 @@ import me.herex.karmsmp.listeners.SpawnListener;
 import me.herex.karmsmp.managers.PlayerDisplayManager;
 import me.herex.karmsmp.managers.RankManager;
 import me.herex.karmsmp.managers.TabManager;
+import me.herex.karmsmp.managers.ClearLagManager;
 import me.herex.karmsmp.regions.RegionManager;
 import me.herex.karmsmp.scoreboards.KaramScoreboardManager;
 import me.herex.karmsmp.spawn.SpawnManager;
 import me.herex.karmsmp.rtp.RandomTeleportManager;
+import me.herex.karmsmp.settings.SettingsManager;
 import me.herex.karmsmp.storage.StorageManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -48,7 +52,9 @@ public final class KaramSMP extends JavaPlugin {
     private SpawnManager spawnManager;
     private EconomyManager economyManager;
     private RandomTeleportManager randomTeleportManager;
+    private SettingsManager settingsManager;
     private DiscordCommand discordCommand;
+    private ClearLagManager clearLagManager;
 
     @Override
     public void onEnable() {
@@ -70,6 +76,8 @@ public final class KaramSMP extends JavaPlugin {
         economyManager = new EconomyManager(this);
         economyManager.load();
         randomTeleportManager = new RandomTeleportManager(this);
+        settingsManager = new SettingsManager(this);
+        clearLagManager = new ClearLagManager(this);
         discordCommand = new DiscordCommand(this);
 
         registerCommands();
@@ -80,6 +88,7 @@ public final class KaramSMP extends JavaPlugin {
         Bukkit.getOnlinePlayers().forEach(player -> economyManager.getBalance(player));
         tabManager.start();
         scoreboardManager.start();
+        clearLagManager.start();
         playerDisplayManager.updateAllPlayers();
         sendStartupMessage();
     }
@@ -104,6 +113,12 @@ public final class KaramSMP extends JavaPlugin {
         if (randomTeleportManager != null) {
             randomTeleportManager.stop();
         }
+        if (clearLagManager != null) {
+            clearLagManager.stop();
+        }
+        if (settingsManager != null) {
+            settingsManager.save();
+        }
         if (economyManager != null) {
             economyManager.close();
         }
@@ -120,10 +135,16 @@ public final class KaramSMP extends JavaPlugin {
         homeManager.load();
         spawnManager.load();
         economyManager.load();
+        if (settingsManager != null) {
+            settingsManager.reload();
+        }
         Bukkit.getOnlinePlayers().forEach(player -> economyManager.getBalance(player));
         Bukkit.getOnlinePlayers().forEach(rankManager::loadPlayer);
         tabManager.reload();
         scoreboardManager.reload();
+        if (clearLagManager != null) {
+            clearLagManager.reload();
+        }
         playerDisplayManager.updateAllPlayers();
     }
 
@@ -217,6 +238,20 @@ public final class KaramSMP extends JavaPlugin {
             rtpCommand.setTabCompleter(randomTeleportManager);
         }
 
+        SettingsCommand settingsCommand = new SettingsCommand(this, settingsManager);
+        PluginCommand settingsPluginCommand = getCommand("settings");
+        if (settingsPluginCommand != null) {
+            settingsPluginCommand.setExecutor(settingsCommand);
+        }
+        Bukkit.getPluginManager().registerEvents(settingsCommand, this);
+
+        ClearLagCommand clearLagCommand = new ClearLagCommand(this, clearLagManager);
+        PluginCommand clearLagPluginCommand = getCommand("clearlag");
+        if (clearLagPluginCommand != null) {
+            clearLagPluginCommand.setExecutor(clearLagCommand);
+            clearLagPluginCommand.setTabCompleter(clearLagCommand);
+        }
+
         PluginCommand rankCommand = getCommand("rank");
         if (rankCommand != null) {
             RankCommand command = new RankCommand(this);
@@ -266,7 +301,7 @@ public final class KaramSMP extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + "========================================");
         Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "          KaramSMP v" + getDescription().getVersion());
         Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "     Plugin loaded successfully!");
-        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "     Commands: /gmsp, /nightvision, /home, /spawn, /stats, /rtp, /pay, /blance, /rank, /region, /kscoreboard, /reload, /discord");
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "     Commands: /gmsp, /nightvision, /home, /spawn, /stats, /settings, /rtp, /pay, /blance, /clearlag, /rank, /region, /kscoreboard, /reload, /discord");
         Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "     Made by Herex._.7");
         Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + "========================================");
     }
@@ -313,5 +348,13 @@ public final class KaramSMP extends JavaPlugin {
 
     public RandomTeleportManager getRandomTeleportManager() {
         return randomTeleportManager;
+    }
+
+    public ClearLagManager getClearLagManager() {
+        return clearLagManager;
+    }
+
+    public SettingsManager getSettingsManager() {
+        return settingsManager;
     }
 }

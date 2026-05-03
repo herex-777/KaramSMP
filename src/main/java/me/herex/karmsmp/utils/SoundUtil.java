@@ -1,6 +1,7 @@
 package me.herex.karmsmp.utils;
 
 import org.bukkit.Sound;
+import org.bukkit.entity.Player;
 
 import java.util.Locale;
 
@@ -38,6 +39,17 @@ public final class SoundUtil {
                 .replace(' ', '_');
 
         return valueOfOrNull(normalized);
+    }
+
+    public static void play(Player player, String configured, float volume, float pitch) {
+        if (player == null) {
+            return;
+        }
+        Sound sound = fromConfig(configured);
+        if (sound == null) {
+            return;
+        }
+        player.playSound(player.getLocation(), sound, volume, pitch);
     }
 
     private static Sound valueOfOrNull(String name) {

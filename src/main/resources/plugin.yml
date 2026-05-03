@@ -1,10 +1,10 @@
 name: KaramSMP
-version: '1.2'
+version: '1.3'
 main: me.herex.karmsmp.KaramSMP
 api-version: '1.21'
 author: Herex._.7
 softdepend: [PlaceholderAPI]
-description: Adds /gmsp toggle, /nightvision, stats GUI, balances, staff balance commands, /pay, optimized /rtp GUI, configurable TAB, ranks, placeholders, databases, regions, scoreboards, homes, spawn, double jump, /guide, /store, and /discord.
+description: Adds /gmsp toggle, /nightvision, stats GUI, balances, staff balance commands, /pay, optimized /rtp GUI, ClearLag, /settings GUI, configurable TAB, ranks, placeholders, databases, regions, scoreboards, homes, spawn, double jump, /guide, /store, and /discord.
 commands:
   gmsp:
     description: Toggle yourself between spectator mode and survival mode.
@@ -67,6 +67,12 @@ commands:
     aliases:
       - stat
       - mystats
+  settings:
+    description: Opens the player settings GUI.
+    usage: /settings
+    aliases:
+      - options
+      - preferences
   pay:
     description: Pay another player money.
     usage: /pay <player> <amount>
@@ -83,6 +89,13 @@ commands:
     aliases:
       - randomtp
       - randomteleport
+  clearlag:
+    description: Shows or runs the KaramSMP ClearLag cleaner.
+    usage: /clearlag [time|now|reload]
+    aliases:
+      - lagclear
+      - clearitems
+      - itemclear
   rank:
     description: Manage KaramSMP ranks and player rank assignments.
     usage: /rank help
@@ -106,6 +119,12 @@ commands:
       - sb
       - karamsmpscoreboard
 permissions:
+  karamsmp.settings.admin:
+    description: Reserved permission for future KaramSMP settings admin tools.
+    default: op
+  karamsmp.clearlag.admin:
+    description: Allows a player to run and reload KaramSMP ClearLag.
+    default: op
   karamsmp.balance.others:
     description: Allows checking other players' balances with /blance <player>.
     default: op
@@ -151,6 +170,8 @@ permissions:
       karamsmp.balance.others: true
       karamsmp.balance.admin: true
       karamsmp.rtp.admin: true
+      karamsmp.settings.admin: true
+      karamsmp.clearlag.admin: true
   karamsmp.admin.ranks:
     description: Allows a player to manage KaramSMP ranks and player ranks.
     default: op

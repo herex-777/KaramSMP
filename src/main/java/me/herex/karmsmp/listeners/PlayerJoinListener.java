@@ -89,6 +89,11 @@ public final class PlayerJoinListener implements Listener {
             return "";
         }
 
+        String nameColor = plugin.getConfig().getString("join-messages.player-name-color", "&f");
+        if (nameColor != null && !nameColor.isBlank()) {
+            message = message.replace("%player%", nameColor + "%player%");
+        }
+
         return rankManager.applyPlaceholders(player, message);
     }
 
@@ -112,6 +117,14 @@ public final class PlayerJoinListener implements Listener {
                     ? new ClickEvent(resolveClickAction(), clickCommand)
                     : null;
 
+            TextComponent root = new TextComponent("");
+            if (hoverEvent != null) {
+                root.setHoverEvent(hoverEvent);
+            }
+            if (clickEvent != null) {
+                root.setClickEvent(clickEvent);
+            }
+
             for (BaseComponent component : components) {
                 if (hoverEvent != null) {
                     component.setHoverEvent(hoverEvent);
@@ -119,10 +132,11 @@ public final class PlayerJoinListener implements Listener {
                 if (clickEvent != null) {
                     component.setClickEvent(clickEvent);
                 }
+                root.addExtra(component);
             }
 
             for (Player online : Bukkit.getOnlinePlayers()) {
-                online.spigot().sendMessage(components);
+                online.spigot().sendMessage(root);
             }
             Bukkit.getConsoleSender().sendMessage(joinMessage);
         } catch (Throwable throwable) {
@@ -153,7 +167,12 @@ public final class PlayerJoinListener implements Listener {
         if (command == null || command.isBlank()) {
             return "";
         }
-        return rankManager.applyPlaceholders(player, command);
+        String replaced = rankManager.applyPlaceholders(player, command);
+        replaced = MessageUtil.stripColor(replaced).trim();
+        if (!replaced.isBlank() && !replaced.startsWith("/")) {
+            replaced = "/" + replaced;
+        }
+        return replaced;
     }
 
     private ClickEvent.Action resolveClickAction() {

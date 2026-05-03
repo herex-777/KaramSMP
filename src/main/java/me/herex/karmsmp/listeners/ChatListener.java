@@ -33,6 +33,11 @@ public final class ChatListener implements Listener {
         event.setCancelled(true);
 
         Player player = event.getPlayer();
+        if (plugin.getSettingsManager() != null && !plugin.getSettingsManager().isEnabled(player, "public-chat")) {
+            String blockedMessage = plugin.getConfig().getString("settings.messages.public-chat-disabled", "&cYou have public chat disabled. Enable it in /settings to chat.");
+            Bukkit.getScheduler().runTask(plugin, () -> player.sendMessage(MessageUtil.color(blockedMessage)));
+            return;
+        }
         String format = plugin.getConfig().getString("chat.format", "%prefix%%player%%suffix%&7: &f%message%");
         String formatted = rankManager.applyPlaceholders(player, format)
                 .replace("%message%", event.getMessage());
@@ -41,9 +46,13 @@ public final class ChatListener implements Listener {
         ConsoleCommandSender console = Bukkit.getConsoleSender();
         Bukkit.getScheduler().runTask(plugin, () -> {
             for (Player recipient : recipients) {
-                if (recipient.isOnline()) {
-                    recipient.sendMessage(formatted);
+                if (!recipient.isOnline()) {
+                    continue;
                 }
+                if (plugin.getSettingsManager() != null && !plugin.getSettingsManager().isEnabled(recipient, "public-chat")) {
+                    continue;
+                }
+                recipient.sendMessage(formatted);
             }
             console.sendMessage(formatted);
         });
