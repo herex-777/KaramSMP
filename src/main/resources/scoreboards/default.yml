@@ -18,7 +18,7 @@ lines-animation:
 
 lines:
   - ""
-  - "&#00FF66$ &fMoney &#00FF660B"
+  - "&#00FF66$ &fMoney &#00FF66%balance%"
   - "&#B34DFF✦ &fShards &#C25CFF0K"
   - "&#FF4D4D🗡 &fKills &#FF4D4D%kills%"
   - "&#FFAA33☠ &fDeaths &#FFAA33%deaths%"

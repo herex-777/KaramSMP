@@ -7,10 +7,12 @@
 # %karamsmp_rank_priority%, %karamsmp_rank_permission%, %karamsmp_rank_permissions%
 # %karamsmp_region%, %karamsmp_regions%, %karamsmp_region_count%
 # %discord%, %discord_invite% can be used inside the Discord command message.
-# %kills%, %deaths%, %playtime%, %playtime_ticks%, %ping%
+# %kills%, %deaths%, %mob_kills%, %mobs_killed%, %playtime%, %playtime_ticks%, %ping%
 # %homes%, %max_homes%, %karamsmp_homes%, %karamsmp_max_homes%
+# %balance%, %money%, %balance_plain%, %money_plain%, %karamsmp_balance%, %karamsmp_balance_plain%
+# Join hover/click placeholders use the player who joined, so %balance% shows the joiner balance.
 # %karamsmp_spawn_set%
-# %karamsmp_kills%, %karamsmp_deaths%, %karamsmp_playtime%, %karamsmp_ping%
+# %karamsmp_kills%, %karamsmp_deaths%, %karamsmp_mob_kills%, %karamsmp_mobs_killed%, %karamsmp_playtime%, %karamsmp_ping%
 
 # Database Configuration
 database:
@@ -30,6 +32,178 @@ database:
     table-prefix: "karamsmp_"
   yaml:
     file: "player-ranks.yml"
+
+
+# Economy / Balance System
+# Uses the same database type by default, so if database.type is sqlite it saves balances in SQLite.
+economy:
+  enabled: true
+  starting-balance: 0.0
+  minimum-pay-amount: 1.0
+  max-balance: 1000000000000000.0
+  allow-pay-self: false
+  storage:
+    # same-as-database, sqlite, mysql, or yaml
+    type: "same-as-database"
+    # Leave sqlite-file empty to use database.sqlite.file.
+    sqlite-file: ""
+    sqlite-table: "player_balances"
+    # Leave mysql-table empty to use database.mysql.table-prefix + player_balances.
+    mysql-table: ""
+    yaml-file: "balances.yml"
+  messages:
+    only-players: "&cOnly players can use this command."
+    disabled: "&cThe balance system is disabled."
+    no-permission: "&cYou don't have permission to use this command!"
+    balance: "&8• &aʙᴀʟᴀɴᴄᴇ &8» &fYour balance is &a%balance%&f."
+    balance-other: "&8• &aʙᴀʟᴀɴᴄᴇ &8» &e%player% &fhas &a%balance%&f."
+    pay-usage: "&cUsage: /pay <player> <amount>"
+    player-not-found: "&cThat player is not online."
+    cannot-pay-self: "&cYou can't pay yourself."
+    invalid-amount: "&cPlease enter a valid amount. Examples: 100, 1K, 2.5M."
+    minimum-pay: "&cThe minimum payment is &e%amount%&c."
+    not-enough-money: "&cYou don't have enough money. Your balance is &e%balance%&c."
+    pay-sent: "&8• &aᴘᴀʏ &8» &fYou sent &a%amount% &fto &e%player%&f."
+    pay-received: "&8• &aᴘᴀʏ &8» &fYou received &a%amount% &ffrom &e%player%&f."
+    admin-usage: "&cUsage: /blance <add|remove|set> <player> <amount>"
+    admin-add: "&8• &aʙᴀʟᴀɴᴄᴇ &8» &aAdded %amount% to &e%player%&a. New balance: &f%balance%&a."
+    admin-remove: "&8• &aʙᴀʟᴀɴᴄᴇ &8» &cRemoved %amount% from &e%player%&c. New balance: &f%balance%&c."
+    admin-set: "&8• &aʙᴀʟᴀɴᴄᴇ &8» &eSet %player%'s balance to &a%balance%&e."
+
+# Stats GUI System
+stats:
+  enabled: true
+  messages:
+    only-players: "&cOnly players can use this command."
+    disabled: "&cStats are disabled."
+    player-not-found: "&cThat player is not online."
+  gui:
+    title-self: "ᴍʏ ꜱᴛᴀᴛꜱ"
+    title-other: "%player% ꜱᴛᴀᴛꜱ"
+    rows: 3
+    items:
+      balance:
+        slot: 10
+        material: "EMERALD"
+        name: "&aʙᴀʟᴀɴᴄᴇ"
+        lore:
+          - "&fBALANCE: &a%balance%"
+      kills:
+        slot: 11
+        material: "DIAMOND_SWORD"
+        name: "&cᴋɪʟʟꜱ"
+        lore:
+          - "&fKILLS: &c%kills%"
+      mobs:
+        slot: 14
+        material: "ZOMBIE_HEAD"
+        name: "&5ᴍᴏʙꜱ ᴋɪʟʟᴇᴅ"
+        lore:
+          - "&fMOBS KILLED: &5%mob_kills%"
+      playtime:
+        slot: 13
+        material: "CLOCK"
+        name: "&eᴘʟᴀʏᴛɪᴍᴇ"
+        lore:
+          - "&fPLAYTIME: &e%playtime%"
+      deaths:
+        slot: 12
+        material: "SKELETON_SKULL"
+        name: "&6ᴅᴇᴀᴛʜꜱ"
+        lore:
+          - "&fDEATHS: &6%deaths%"
+      ping:
+        slot: 16
+        material: "PAPER"
+        name: "&bᴘɪɴɢ"
+        lore:
+          - "&fPING: &b%ping%ms"
+      coming-soon:
+        slot: 15
+        material: "WHITE_BANNER"
+        name: "&cᴄᴏᴍɪɴɢ ꜱᴏᴏɴ..."
+        lore:
+          - "&7More stats will be added soon."
+
+# Random Teleport System
+rtp:
+  enabled: true
+  teleport-delay-seconds: 5
+  default-min-radius: 250
+  default-max-radius: 5000
+  attempts: 64
+  # How many safe-location checks are done each tick after the countdown. Lower = less lag/freezing.
+  attempts-per-tick: 2
+  gui:
+    title: "&8ʀᴀɴᴅᴏᴍ ᴛᴇʟᴇᴘᴏʀᴛ"
+    rows: 3
+  sounds:
+    teleported:
+      name: "ENTITY_ENDERMAN_TELEPORT"
+      volume: 1.0
+      pitch: 1.2
+    cancelled:
+      name: "BLOCK_PRESSURE_PLATE_CLICK_ON"
+      volume: 1.0
+      pitch: 1.0
+  messages:
+    only-players: "&cOnly players can use this command."
+    disabled: "&cRandom teleport is disabled."
+    already-teleporting: "&8• &bʀᴛᴘ &8» &cYou are already teleporting."
+    world-disabled: "&8• &bʀᴛᴘ &8» &cThat random teleport world is disabled."
+    world-not-found: "&8• &bʀᴛᴘ &8» &cWorld &e%world% &cwas not found."
+    no-safe-location: "&8• &bʀᴛᴘ &8» &cCould not find a safe location. Try again."
+    searching: "&8• &bʀᴛᴘ &8» &7Finding a safe location..."
+    teleport-start: "&8• &bʀᴛᴘ &8» &7ᴛᴇʟᴇᴘᴏʀᴛɪɴɢ ɪɴ &b%seconds% &7sᴇᴄᴏɴᴅs ᴛᴏ &e%world%&7. &8(ᴅᴏɴ'ᴛ ᴍᴏᴠᴇ!)"
+    teleport-cancelled: "&8• &bʀᴛᴘ &8» &cᴛᴇʟᴇᴘᴏʀᴛ ᴄᴀɴᴄᴇʟʟᴇᴅ ʙᴇᴄᴀᴜꜱᴇ ʏᴏᴜ ᴍᴏᴠᴇᴅ!"
+    teleported: "&8• &bʀᴛᴘ &8» &aTeleported to &e%world%&a."
+    actionbar-countdown: "&bʀᴛᴘ ɪɴ &f%seconds% &bꜱᴇᴄᴏɴᴅꜱ..."
+    actionbar-cancelled: "&cʀᴛᴘ ᴄᴀɴᴄᴇʟʟᴇᴅ (ᴍᴏᴠᴇᴅ)!"
+    actionbar-teleported: "&aʀᴀɴᴅᴏᴍ ᴛᴇʟᴇᴘᴏʀᴛᴇᴅ!"
+  worlds:
+    overworld:
+      enabled: true
+      display-name: "&aᴏᴠᴇʀᴡᴏʀʟᴅ"
+      world: "world"
+      slot: 11
+      material: "GRASS_BLOCK"
+      name: "&a&lᴏᴠᴇʀᴡᴏʀʟᴅ"
+      lore:
+        - "&fClick to randomly teleport"
+      min-radius: 250
+      max-radius: 5000
+      attempts: 64
+      avoid-water: true
+    nether:
+      enabled: true
+      display-name: "&cɴᴇᴛʜᴇʀ"
+      world: "world_nether"
+      slot: 13
+      material: "NETHERRACK"
+      name: "&c&lɴᴇᴛʜᴇʀ"
+      lore:
+        - "&fClick to randomly teleport"
+      min-radius: 250
+      max-radius: 3000
+      attempts: 96
+      min-y: 32
+      max-y: 119
+      avoid-water: false
+    end:
+      enabled: true
+      display-name: "&eᴇɴᴅ"
+      world: "world_the_end"
+      slot: 15
+      material: "END_STONE"
+      name: "&e&lᴇɴᴅ"
+      lore:
+        - "&fClick to randomly teleport"
+      min-radius: 250
+      max-radius: 4000
+      attempts: 96
+      min-y: 1
+      max-y: 255
+      avoid-water: true
 
 # Text System
 # Removes hidden zero-width characters from fancy copied text so TAB/scoreboard does not display broken boxes.
@@ -56,6 +230,22 @@ join-messages:
   message: "&8[&a+&8] %karamsmp_ranks_prefix%%player% &ejoined the server."
   first-join-enabled: false
   first-join-message: "&8[&a+&8] %karamsmp_ranks_prefix%%player%%karamsmp_ranks_suffix% &7joined for the first time. &eWelcome!"
+  hover:
+    enabled: true
+    text:
+      - "&b%player%"
+      - "&7Rank: %karamsmp_ranks_prefix%"
+      - "&7Balance: &a%balance%"
+      - "&7Kills: &c%kills%"
+      - "&7Deaths: &6%deaths%"
+      - "&7Playtime: &e%playtime%"
+      - ""
+      - "&eClick to run: &f%join_click_command%"
+  click:
+    enabled: true
+    # RUN_COMMAND runs it when clicked. SUGGEST_COMMAND puts it in chat instead.
+    action: "RUN_COMMAND"
+    command: "/stats %player%"
 
 # Quit Message System
 quit-messages:

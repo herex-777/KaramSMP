@@ -63,9 +63,12 @@ public final class KaramSMPPlaceholderExpansion extends PlaceholderExpansion {
             case "gamemode" -> player.getGameMode().name();
             case "kills", "player_kills" -> String.valueOf(PlayerStatsUtil.getKills(player));
             case "deaths", "player_deaths" -> String.valueOf(PlayerStatsUtil.getDeaths(player));
+            case "mob_kills", "mobs_killed" -> String.valueOf(PlayerStatsUtil.getMobKills(player));
             case "playtime" -> PlayerStatsUtil.getPlaytime(player);
             case "playtime_ticks" -> String.valueOf(PlayerStatsUtil.getPlayTicks(player));
             case "ping" -> String.valueOf(PlayerStatsUtil.getPing(player));
+            case "balance", "balance_formatted", "money" -> plugin.getEconomyManager() == null ? "$0" : plugin.getEconomyManager().format(plugin.getEconomyManager().getBalance(player));
+            case "balance_plain", "money_plain" -> plugin.getEconomyManager() == null ? "0" : plugin.getEconomyManager().formatPlain(plugin.getEconomyManager().getBalance(player));
             case "region", "top_region", "regions_top" -> plugin.getRegionManager() == null ? "none" : plugin.getRegionManager().getTopRegionPlaceholder(player);
             case "regions", "region_list", "regions_list" -> plugin.getRegionManager() == null ? "none" : plugin.getRegionManager().getRegionsPlaceholder(player);
             case "region_count", "regions_count" -> plugin.getRegionManager() == null ? "0" : plugin.getRegionManager().getRegionCountPlaceholder(player);

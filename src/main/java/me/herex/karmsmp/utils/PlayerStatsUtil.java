@@ -16,6 +16,10 @@ public final class PlayerStatsUtil {
         return safeStatistic(player, Statistic.DEATHS);
     }
 
+    public static int getMobKills(Player player) {
+        return safeStatistic(player, Statistic.MOB_KILLS);
+    }
+
     public static int getPlayTicks(Player player) {
         return safeStatistic(player, Statistic.PLAY_ONE_MINUTE);
     }

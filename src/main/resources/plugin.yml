@@ -1,10 +1,10 @@
 name: KaramSMP
-version: '0.9.1'
+version: '1.2'
 main: me.herex.karmsmp.KaramSMP
 api-version: '1.21'
 author: Herex._.7
 softdepend: [PlaceholderAPI]
-description: Adds /gmsp toggle, /nightvision, configurable TAB, ranks, placeholders, databases, regions, scoreboards with hex colors, join messages, homes GUI with database saving, spawn, double jump regions, /guide, /store, and /discord.
+description: Adds /gmsp toggle, /nightvision, stats GUI, balances, staff balance commands, /pay, optimized /rtp GUI, configurable TAB, ranks, placeholders, databases, regions, scoreboards, homes, spawn, double jump, /guide, /store, and /discord.
 commands:
   gmsp:
     description: Toggle yourself between spectator mode and survival mode.
@@ -61,6 +61,28 @@ commands:
   setspawn:
     description: Set the server spawn.
     usage: /setspawn
+  stats:
+    description: Opens the player stats GUI.
+    usage: /stats [player]
+    aliases:
+      - stat
+      - mystats
+  pay:
+    description: Pay another player money.
+    usage: /pay <player> <amount>
+  blance:
+    description: Shows your balance or another player's balance.
+    usage: /blance [player|add|remove|set] [player] [amount]
+    aliases:
+      - balance
+      - bal
+      - money
+  rtp:
+    description: Opens the random teleport GUI.
+    usage: /rtp
+    aliases:
+      - randomtp
+      - randomteleport
   rank:
     description: Manage KaramSMP ranks and player rank assignments.
     usage: /rank help
@@ -84,6 +106,15 @@ commands:
       - sb
       - karamsmpscoreboard
 permissions:
+  karamsmp.balance.others:
+    description: Allows checking other players' balances with /blance <player>.
+    default: op
+  karamsmp.balance.admin:
+    description: Allows staff to use /blance add, remove, and set.
+    default: op
+  karamsmp.rtp.admin:
+    description: Allows using /rtp <section> directly.
+    default: op
   karamsmp.spawn.set:
     description: Allows a player to set the server spawn.
     default: op
@@ -117,6 +148,9 @@ permissions:
       karamsmp.spawn.set: true
       karamsmp.helper.gmsp: true
       karamsmp.discord: true
+      karamsmp.balance.others: true
+      karamsmp.balance.admin: true
+      karamsmp.rtp.admin: true
   karamsmp.admin.ranks:
     description: Allows a player to manage KaramSMP ranks and player ranks.
     default: op

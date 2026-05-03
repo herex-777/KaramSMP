@@ -243,7 +243,7 @@ public final class KaramScoreboardManager {
         yaml.set("title-animation.frames", List.of("&#00D5FF&lKaramSMP", "&#56FFB1&lKaramSMP"));
         yaml.set("lines-animation.enabled", false);
         yaml.set("lines-animation.interval-ticks", 20);
-        yaml.set("lines", List.of("", "&#E6E6E6Player &#00D5FF%player%", "&#E6E6E6Rank %karamsmp_ranks_prefix%", "&#E6E6E6Kills &#FF5555%kills%", "&#E6E6E6Deaths &#FFAA00%deaths%", "&#E6E6E6Playtime &#FFFF55%playtime%", "", "&#FFD84Dplay.karamsmp.net"));
+        yaml.set("lines", List.of("", "&#E6E6E6Player &#00D5FF%player%", "&#E6E6E6Money &#00FF66%balance%", "&#E6E6E6Rank %karamsmp_ranks_prefix%", "&#E6E6E6Kills &#FF5555%kills%", "&#E6E6E6Deaths &#FFAA00%deaths%", "&#E6E6E6Playtime &#FFFF55%playtime%", "", "&#FFD84Dplay.karamsmp.net"));
         return saveYaml(file, yaml);
     }
 

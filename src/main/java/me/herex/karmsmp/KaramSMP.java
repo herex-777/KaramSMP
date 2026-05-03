@@ -3,14 +3,18 @@ package me.herex.karmsmp;
 import me.herex.karmsmp.commands.DiscordCommand;
 import me.herex.karmsmp.commands.GameModeCommand;
 import me.herex.karmsmp.commands.HomeCommand;
+import me.herex.karmsmp.commands.BalanceCommand;
+import me.herex.karmsmp.commands.PayCommand;
 import me.herex.karmsmp.commands.InfoCommand;
 import me.herex.karmsmp.commands.RankCommand;
 import me.herex.karmsmp.commands.RegionCommand;
 import me.herex.karmsmp.commands.NightVisionCommand;
 import me.herex.karmsmp.commands.ScoreboardCommand;
 import me.herex.karmsmp.commands.SpawnCommand;
+import me.herex.karmsmp.commands.StatsCommand;
 import me.herex.karmsmp.commands.ReloadCommand;
 import me.herex.karmsmp.hooks.KaramSMPPlaceholderExpansion;
+import me.herex.karmsmp.economy.EconomyManager;
 import me.herex.karmsmp.homes.HomeManager;
 import me.herex.karmsmp.listeners.ChatListener;
 import me.herex.karmsmp.listeners.DiscordCommandListener;
@@ -25,6 +29,7 @@ import me.herex.karmsmp.managers.TabManager;
 import me.herex.karmsmp.regions.RegionManager;
 import me.herex.karmsmp.scoreboards.KaramScoreboardManager;
 import me.herex.karmsmp.spawn.SpawnManager;
+import me.herex.karmsmp.rtp.RandomTeleportManager;
 import me.herex.karmsmp.storage.StorageManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -41,6 +46,8 @@ public final class KaramSMP extends JavaPlugin {
     private KaramScoreboardManager scoreboardManager;
     private HomeManager homeManager;
     private SpawnManager spawnManager;
+    private EconomyManager economyManager;
+    private RandomTeleportManager randomTeleportManager;
     private DiscordCommand discordCommand;
 
     @Override
@@ -60,6 +67,9 @@ public final class KaramSMP extends JavaPlugin {
         homeManager.load();
         spawnManager = new SpawnManager(this);
         spawnManager.load();
+        economyManager = new EconomyManager(this);
+        economyManager.load();
+        randomTeleportManager = new RandomTeleportManager(this);
         discordCommand = new DiscordCommand(this);
 
         registerCommands();
@@ -67,6 +77,7 @@ public final class KaramSMP extends JavaPlugin {
         registerPlaceholderAPI();
 
         Bukkit.getOnlinePlayers().forEach(rankManager::loadPlayer);
+        Bukkit.getOnlinePlayers().forEach(player -> economyManager.getBalance(player));
         tabManager.start();
         scoreboardManager.start();
         playerDisplayManager.updateAllPlayers();
@@ -90,6 +101,12 @@ public final class KaramSMP extends JavaPlugin {
         if (spawnManager != null) {
             spawnManager.save();
         }
+        if (randomTeleportManager != null) {
+            randomTeleportManager.stop();
+        }
+        if (economyManager != null) {
+            economyManager.close();
+        }
         if (storageManager != null) {
             storageManager.close();
         }
@@ -102,6 +119,8 @@ public final class KaramSMP extends JavaPlugin {
         regionManager.reload();
         homeManager.load();
         spawnManager.load();
+        economyManager.load();
+        Bukkit.getOnlinePlayers().forEach(player -> economyManager.getBalance(player));
         Bukkit.getOnlinePlayers().forEach(rankManager::loadPlayer);
         tabManager.reload();
         scoreboardManager.reload();
@@ -170,6 +189,34 @@ public final class KaramSMP extends JavaPlugin {
             setSpawnCommand.setExecutor(spawnCommand);
         }
 
+        BalanceCommand balanceCommand = new BalanceCommand(this, economyManager);
+        PluginCommand balancePluginCommand = getCommand("blance");
+        if (balancePluginCommand != null) {
+            balancePluginCommand.setExecutor(balanceCommand);
+            balancePluginCommand.setTabCompleter(balanceCommand);
+        }
+
+        StatsCommand statsCommand = new StatsCommand(this);
+        PluginCommand statsPluginCommand = getCommand("stats");
+        if (statsPluginCommand != null) {
+            statsPluginCommand.setExecutor(statsCommand);
+            statsPluginCommand.setTabCompleter(statsCommand);
+        }
+        Bukkit.getPluginManager().registerEvents(statsCommand, this);
+
+        PayCommand payCommand = new PayCommand(this, economyManager);
+        PluginCommand payPluginCommand = getCommand("pay");
+        if (payPluginCommand != null) {
+            payPluginCommand.setExecutor(payCommand);
+            payPluginCommand.setTabCompleter(payCommand);
+        }
+
+        PluginCommand rtpCommand = getCommand("rtp");
+        if (rtpCommand != null) {
+            rtpCommand.setExecutor(randomTeleportManager);
+            rtpCommand.setTabCompleter(randomTeleportManager);
+        }
+
         PluginCommand rankCommand = getCommand("rank");
         if (rankCommand != null) {
             RankCommand command = new RankCommand(this);
@@ -198,6 +245,7 @@ public final class KaramSMP extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new HomeListener(this, homeManager), this);
         Bukkit.getPluginManager().registerEvents(new SpawnListener(spawnManager), this);
         Bukkit.getPluginManager().registerEvents(new DoubleJumpListener(this, regionManager), this);
+        Bukkit.getPluginManager().registerEvents(randomTeleportManager, this);
         Bukkit.getPluginManager().registerEvents(new ChatListener(this, rankManager), this);
         Bukkit.getPluginManager().registerEvents(new RegionListener(this, regionManager), this);
     }
@@ -218,7 +266,7 @@ public final class KaramSMP extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + "========================================");
         Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "          KaramSMP v" + getDescription().getVersion());
         Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "     Plugin loaded successfully!");
-        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "     Commands: /gmsp, /nightvision, /home, /spawn, /rank, /region, /kscoreboard, /reload, /discord");
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "     Commands: /gmsp, /nightvision, /home, /spawn, /stats, /rtp, /pay, /blance, /rank, /region, /kscoreboard, /reload, /discord");
         Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "     Made by Herex._.7");
         Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + "========================================");
     }
@@ -257,5 +305,13 @@ public final class KaramSMP extends JavaPlugin {
 
     public DiscordCommand getDiscordCommand() {
         return discordCommand;
+    }
+
+    public EconomyManager getEconomyManager() {
+        return economyManager;
+    }
+
+    public RandomTeleportManager getRandomTeleportManager() {
+        return randomTeleportManager;
     }
 }
