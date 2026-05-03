@@ -1,25 +1,22 @@
 # KaramSMP
 
-KaramSMP is a Paper 1.21.11 plugin made for Herex._.7.
+Paper 1.21.11 plugin for KaramSMP.
 
-Version: `0.6`  
-Group ID: `me.herex`  
-Artifact ID: `karmsmp`
+## Features
 
-## Main features
-
-- `/gmsp` or `/gsmp` toggles spectator/survival with `karamsmp.helper.gmsp`.
-- `/nightvision` or `/nv` toggles Night Vision for every player with no permission needed.
-- Configurable TAB header/footer with rank priority sorting.
-- Rank prefix/suffix system with saved player ranks.
-- PlaceholderAPI hook and internal placeholders.
-- SQLite, MySQL, or YAML rank storage.
-- WorldGuard-style cuboid regions with flags.
-- Scoreboards from `plugins/KaramSMP/scoreboards/*.yml`.
-- Animated scoreboard titles and animated lines.
-- Hex color support everywhere KaramSMP formats text.
-- Custom join/quit messages.
-- Configurable `/discord` command.
+- `/gmsp` / `/gsmp` spectator toggle
+- `/nightvision` / `/nv` night vision toggle
+- Configurable TAB header/footer with hex colors and styled Unicode text support
+- Rank prefixes/suffixes, rank permissions, and database-backed assigned ranks
+- SQLite/MySQL/YAML rank storage
+- Configurable chat format
+- Join/quit messages
+- `/discord`, `/guide`, and `/store` info commands
+- Region protection system with wand selections and flags
+- Region `double-jump` flag for spawn-style double jump areas
+- Spawn system with `/setspawn` and first-join teleport
+- Animated multi-file scoreboards in `plugins/KaramSMP/scoreboards/`
+- DonutSMP-style homes system with GUI, gray beds, confirm-delete menu, teleport countdown, movement cancel, and database-backed home saving
 
 ## Build
 
@@ -27,181 +24,71 @@ Artifact ID: `karmsmp`
 mvn clean package
 ```
 
-The built plugin will be:
+The built jar will be:
 
 ```text
-target/KaramSMP-0.6.1.jar
+target/KaramSMP-0.9.jar
 ```
 
-Put the JAR into your server `plugins` folder and restart the server.
+## Home commands
 
-## Hex colors
+```text
+/home
+/home <name>
+/sethome <name>
+/delhome <name>
+```
 
-KaramSMP supports these RGB formats in `config.yml`, TAB, chat, ranks, join messages, and scoreboards:
+`/home` opens the GUI. Gray beds teleport to saved homes or create free slots. Delete dye opens a confirm-delete menu. Confirming plays the configured XP level-up sound; canceling plays the configured pressure-plate sound and returns to the homes GUI.
+
+Homes use `homes.storage.type: same-as-database` by default, so they save into SQLite or MySQL based on `database.type`. Set it to `yaml` if you want `homes.yml` instead.
+
+## Spawn commands
+
+```text
+/spawn
+/setspawn
+```
+
+`/setspawn` requires `karamsmp.spawn.set`. New players teleport to the saved spawn on first join when `spawn.teleport-first-join` is enabled.
+
+## Double jump
+
+Set a region to allow double jump:
+
+```text
+/region flag spawn double-jump true
+```
+
+You can also allow double jump around the saved spawn location with:
 
 ```yaml
-"&#00D5FFBlue text"
-"#00D5FFBlue text"
-"<#00D5FF>Blue text"
+double-jump:
+  spawn:
+    enabled: true
+    radius: 50.0
 ```
 
-Legacy colors still work too:
-
-```yaml
-"&b&lKaram SMP"
-```
-
-## Scoreboards
-
-Scoreboard files are stored in:
-
-```text
-plugins/KaramSMP/scoreboards/
-```
-
-Default files included:
-
-```text
-default.yml
-spawn.yml
-staff.yml
-nether.yml
-```
-
-The default scoreboard is DonutSMP-inspired and uses these symbols:
-
-```text
-$ Money
-✦ Shards
-⚔ Kills
-☠ Deaths
-⏳ Keyall
-◷ Playtime
-```
-
-Useful placeholders:
-
-```text
-%kills%
-%deaths%
-%playtime%
-%playtime_ticks%
-%ping%
-%karamsmp_kills%
-%karamsmp_deaths%
-%karamsmp_playtime%
-%karamsmp_ping%
-%karamsmp_ranks_prefix%
-%karamsmp_ranks_suffix%
-%karamsmp_region%
-```
-
-Line animations use `||` inside one line:
-
-```yaml
-lines:
-  - "&#00FF66Online||&#FFFF55Online"
-```
-
-## Scoreboard commands
-
-Base command: `/kscoreboard`  
-Aliases: `/scoreboards`, `/sb`, `/karamsmpscoreboard`  
-Permission: `karamsmp.scoreboards.admin`
-
-- `/kscoreboard reload`
-- `/kscoreboard list`
-- `/kscoreboard info <id>`
-- `/kscoreboard create <id>`
-- `/kscoreboard delete <id>`
-- `/kscoreboard enable <id>`
-- `/kscoreboard disable <id>`
-- `/kscoreboard setpermission <id> <permission|none>`
-- `/kscoreboard setpriority <id> <number>`
-- `/kscoreboard addworld <id> <world>`
-- `/kscoreboard removeworld <id> <world>`
-- `/kscoreboard addregion <id> <region>`
-- `/kscoreboard removeregion <id> <region>`
-- `/kscoreboard settitle <id> <text>`
-- `/kscoreboard addline <id> <text>`
-- `/kscoreboard setline <id> <line> <text>`
-- `/kscoreboard removeline <id> <line>`
-
-## Rank commands
-
-Base command: `/rank`  
-Aliases: `/ranks`, `/ksmprank`  
-Permission: `karamsmp.admin.ranks`
-
-- `/rank help`
-- `/rank list`
-- `/rank info <rank>`
-- `/rank set <player> <rank>`
-- `/rank clear <player>`
-- `/rank create <rank> <permission> <priority>`
-- `/rank remove <rank>`
-- `/rank setprefix <rank> <prefix>`
-- `/rank setsuffix <rank> <suffix>`
-- `/rank addperm <rank> <permission>`
-- `/rank delperm <rank> <permission>`
-
-## Region wand
-
-Use:
+## Region commands
 
 ```text
 /region wand
+/region pos1
+/region pos2
+/region create <name>
+/region delete <name>
+/region list
+/region info <name>
+/region here
+/region flag <name> <flag> <true|false|reset>
+/region owner add|remove <region> <player>
+/region member add|remove <region> <player>
+/region priority <region> <priority>
+/region redefine <region>
+/region expand <region> <direction> <amount>
+/region contract <region> <direction> <amount>
+/region message <region> greeting|farewell <message|clear>
+/region tp <region>
+/region save
+/region reload
 ```
-
-Then:
-
-- Left click a block to set position 1.
-- Right click a block to set position 2.
-- Run `/region create <name>`.
-
-The wand is configurable in `config.yml` under `regions.wand`.
-
-## Region flags
-
-`true` means allowed. `false` means blocked.
-
-- `block-break`
-- `block-place`
-- `pvp`
-- `fall-damage`
-- `interact`
-- `chest-access`
-- `item-drop`
-- `item-pickup`
-- `mob-spawning`
-- `explosions`
-- `fire-spread`
-- `entry`
-- `exit`
-
-Example protected spawn:
-
-```text
-/region flag spawn block-break false
-/region flag spawn block-place false
-/region flag spawn pvp false
-/region flag spawn fall-damage false
-```
-
-## Database config
-
-```yaml
-database:
-  type: "sqlite" # sqlite, mysql, or yaml
-```
-
-SQLite is the default and creates:
-
-```text
-plugins/KaramSMP/player-ranks.db
-```
-
-
-## 0.6.1 compatibility fix
-
-Removed Adventure/Paper-only chat classes from the chat listener and switched to Bukkit AsyncPlayerChatEvent so the plugin can load on servers that do not provide net.kyori.adventure.text.Component at runtime.

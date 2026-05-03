@@ -5,11 +5,11 @@
 
     <groupId>me.herex</groupId>
     <artifactId>karmsmp</artifactId>
-    <version>0.7</version>
+    <version>0.9.1</version>
     <packaging>jar</packaging>
 
     <name>KaramSMP</name>
-    <description>Paper SMP plugin with game mode commands, configurable TAB, ranks, placeholders, databases, regions, scoreboards with hex colors, join messages, and Discord command.</description>
+    <description>Paper SMP plugin with game mode commands, configurable TAB, ranks, placeholders, databases, regions, scoreboards with hex colors, join messages, homes GUI with database saving, spawn system, double jump regions, guide/store, and Discord command.</description>
 
     <properties>
         <maven.compiler.release>21</maven.compiler.release>

@@ -70,6 +70,9 @@ public final class KaramSMPPlaceholderExpansion extends PlaceholderExpansion {
             case "regions", "region_list", "regions_list" -> plugin.getRegionManager() == null ? "none" : plugin.getRegionManager().getRegionsPlaceholder(player);
             case "region_count", "regions_count" -> plugin.getRegionManager() == null ? "0" : plugin.getRegionManager().getRegionCountPlaceholder(player);
             case "scoreboard", "scoreboard_id" -> plugin.getScoreboardManager() == null ? "none" : plugin.getScoreboardManager().getActiveScoreboardId(player);
+            case "homes", "home_count" -> plugin.getHomeManager() == null ? "0" : String.valueOf(plugin.getHomeManager().getHomes(player).size());
+            case "max_homes", "homes_max" -> plugin.getHomeManager() == null ? "0" : String.valueOf(plugin.getHomeManager().getMaxHomes(player));
+            case "spawn_set" -> plugin.getSpawnManager() == null ? "false" : String.valueOf(plugin.getSpawnManager().hasSpawn());
             default -> null;
         };
     }

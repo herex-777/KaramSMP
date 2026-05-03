@@ -468,7 +468,8 @@ public final class RegionManager {
                 "explosions",
                 "fire-spread",
                 "entry",
-                "exit"
+                "exit",
+                "double-jump"
         ));
         for (String flag : plugin.getConfig().getStringList("regions.available-flags")) {
             String normalized = Region.normalizeFlag(flag);
@@ -502,6 +503,7 @@ public final class RegionManager {
         hardDefaults.put("fire-spread", false);
         hardDefaults.put("entry", true);
         hardDefaults.put("exit", true);
+        hardDefaults.put("double-jump", false);
         return plugin.getConfig().getBoolean("regions.defaults.flags." + normalized, hardDefaults.getOrDefault(normalized, true));
     }
 

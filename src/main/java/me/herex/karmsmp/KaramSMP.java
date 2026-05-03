@@ -2,21 +2,29 @@ package me.herex.karmsmp;
 
 import me.herex.karmsmp.commands.DiscordCommand;
 import me.herex.karmsmp.commands.GameModeCommand;
+import me.herex.karmsmp.commands.HomeCommand;
+import me.herex.karmsmp.commands.InfoCommand;
 import me.herex.karmsmp.commands.RankCommand;
 import me.herex.karmsmp.commands.RegionCommand;
 import me.herex.karmsmp.commands.NightVisionCommand;
 import me.herex.karmsmp.commands.ScoreboardCommand;
+import me.herex.karmsmp.commands.SpawnCommand;
 import me.herex.karmsmp.commands.ReloadCommand;
 import me.herex.karmsmp.hooks.KaramSMPPlaceholderExpansion;
+import me.herex.karmsmp.homes.HomeManager;
 import me.herex.karmsmp.listeners.ChatListener;
 import me.herex.karmsmp.listeners.DiscordCommandListener;
+import me.herex.karmsmp.listeners.DoubleJumpListener;
+import me.herex.karmsmp.listeners.HomeListener;
 import me.herex.karmsmp.listeners.PlayerJoinListener;
 import me.herex.karmsmp.listeners.RegionListener;
+import me.herex.karmsmp.listeners.SpawnListener;
 import me.herex.karmsmp.managers.PlayerDisplayManager;
 import me.herex.karmsmp.managers.RankManager;
 import me.herex.karmsmp.managers.TabManager;
 import me.herex.karmsmp.regions.RegionManager;
 import me.herex.karmsmp.scoreboards.KaramScoreboardManager;
+import me.herex.karmsmp.spawn.SpawnManager;
 import me.herex.karmsmp.storage.StorageManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -31,6 +39,8 @@ public final class KaramSMP extends JavaPlugin {
     private TabManager tabManager;
     private RegionManager regionManager;
     private KaramScoreboardManager scoreboardManager;
+    private HomeManager homeManager;
+    private SpawnManager spawnManager;
     private DiscordCommand discordCommand;
 
     @Override
@@ -46,6 +56,10 @@ public final class KaramSMP extends JavaPlugin {
         regionManager = new RegionManager(this);
         regionManager.load();
         scoreboardManager = new KaramScoreboardManager(this);
+        homeManager = new HomeManager(this);
+        homeManager.load();
+        spawnManager = new SpawnManager(this);
+        spawnManager.load();
         discordCommand = new DiscordCommand(this);
 
         registerCommands();
@@ -70,6 +84,12 @@ public final class KaramSMP extends JavaPlugin {
         if (scoreboardManager != null) {
             scoreboardManager.stop();
         }
+        if (homeManager != null) {
+            homeManager.stop();
+        }
+        if (spawnManager != null) {
+            spawnManager.save();
+        }
         if (storageManager != null) {
             storageManager.close();
         }
@@ -80,6 +100,8 @@ public final class KaramSMP extends JavaPlugin {
         storageManager.connect();
         rankManager.reload();
         regionManager.reload();
+        homeManager.load();
+        spawnManager.load();
         Bukkit.getOnlinePlayers().forEach(rankManager::loadPlayer);
         tabManager.reload();
         scoreboardManager.reload();
@@ -110,6 +132,44 @@ public final class KaramSMP extends JavaPlugin {
             discordPluginCommand.setExecutor(discordCommand);
         }
 
+        PluginCommand guideCommand = getCommand("guide");
+        if (guideCommand != null) {
+            guideCommand.setExecutor(new InfoCommand(this, "guide"));
+        }
+
+        PluginCommand storeCommand = getCommand("store");
+        if (storeCommand != null) {
+            storeCommand.setExecutor(new InfoCommand(this, "store"));
+        }
+
+        HomeCommand homeCommand = new HomeCommand(this, homeManager);
+        PluginCommand homePluginCommand = getCommand("home");
+        if (homePluginCommand != null) {
+            homePluginCommand.setExecutor(homeCommand);
+            homePluginCommand.setTabCompleter(homeCommand);
+        }
+
+        PluginCommand setHomeCommand = getCommand("sethome");
+        if (setHomeCommand != null) {
+            setHomeCommand.setExecutor(homeCommand);
+        }
+
+        PluginCommand delHomeCommand = getCommand("delhome");
+        if (delHomeCommand != null) {
+            delHomeCommand.setExecutor(homeCommand);
+            delHomeCommand.setTabCompleter(homeCommand);
+        }
+
+        SpawnCommand spawnCommand = new SpawnCommand(this, spawnManager);
+        PluginCommand spawnPluginCommand = getCommand("spawn");
+        if (spawnPluginCommand != null) {
+            spawnPluginCommand.setExecutor(spawnCommand);
+        }
+        PluginCommand setSpawnCommand = getCommand("setspawn");
+        if (setSpawnCommand != null) {
+            setSpawnCommand.setExecutor(spawnCommand);
+        }
+
         PluginCommand rankCommand = getCommand("rank");
         if (rankCommand != null) {
             RankCommand command = new RankCommand(this);
@@ -135,6 +195,9 @@ public final class KaramSMP extends JavaPlugin {
     private void registerListeners() {
         Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(this, rankManager, tabManager, playerDisplayManager, scoreboardManager), this);
         Bukkit.getPluginManager().registerEvents(new DiscordCommandListener(this, discordCommand), this);
+        Bukkit.getPluginManager().registerEvents(new HomeListener(this, homeManager), this);
+        Bukkit.getPluginManager().registerEvents(new SpawnListener(spawnManager), this);
+        Bukkit.getPluginManager().registerEvents(new DoubleJumpListener(this, regionManager), this);
         Bukkit.getPluginManager().registerEvents(new ChatListener(this, rankManager), this);
         Bukkit.getPluginManager().registerEvents(new RegionListener(this, regionManager), this);
     }
@@ -155,7 +218,7 @@ public final class KaramSMP extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + "========================================");
         Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "          KaramSMP v" + getDescription().getVersion());
         Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "     Plugin loaded successfully!");
-        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "     Commands: /gmsp, /nightvision, /rank, /region, /kscoreboard, /reload, /discord");
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "     Commands: /gmsp, /nightvision, /home, /spawn, /rank, /region, /kscoreboard, /reload, /discord");
         Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "     Made by Herex._.7");
         Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + "========================================");
     }
@@ -182,6 +245,14 @@ public final class KaramSMP extends JavaPlugin {
 
     public KaramScoreboardManager getScoreboardManager() {
         return scoreboardManager;
+    }
+
+    public HomeManager getHomeManager() {
+        return homeManager;
+    }
+
+    public SpawnManager getSpawnManager() {
+        return spawnManager;
     }
 
     public DiscordCommand getDiscordCommand() {

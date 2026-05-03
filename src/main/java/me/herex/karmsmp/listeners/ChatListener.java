@@ -24,7 +24,7 @@ public final class ChatListener implements Listener {
         this.rankManager = rankManager;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onChat(AsyncPlayerChatEvent event) {
         if (!plugin.getConfig().getBoolean("chat.enabled", true)) {
             return;
@@ -35,7 +35,7 @@ public final class ChatListener implements Listener {
         Player player = event.getPlayer();
         String format = plugin.getConfig().getString("chat.format", "%prefix%%player%%suffix%&7: &f%message%");
         String formatted = rankManager.applyPlaceholders(player, format)
-                .replace("%message%", MessageUtil.stripZeroWidth(event.getMessage()));
+                .replace("%message%", event.getMessage());
 
         List<Player> recipients = new ArrayList<>(event.getRecipients());
         ConsoleCommandSender console = Bukkit.getConsoleSender();

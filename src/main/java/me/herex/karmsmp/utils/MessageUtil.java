@@ -27,8 +27,7 @@ public final class MessageUtil {
             return "";
         }
 
-        String normalized = stripZeroWidth(message);
-        String withHexTags = translateTagHex(normalized);
+        String withHexTags = translateTagHex(message);
         String withHex = translateAmpHex(withHexTags);
         return ChatColor.translateAlternateColorCodes('&', withHex);
     }
@@ -180,6 +179,9 @@ public final class MessageUtil {
                 changed = true;
             }
         } while (changed && cut > 0);
+        if (cut > 0 && cut < input.length() && Character.isHighSurrogate(input.charAt(cut - 1)) && Character.isLowSurrogate(input.charAt(cut))) {
+            cut--;
+        }
         return Math.max(0, cut);
     }
 

@@ -344,7 +344,12 @@ public final class RankManager {
                 .replace("%karamsmp_deaths%", String.valueOf(PlayerStatsUtil.getDeaths(player)))
                 .replace("%karamsmp_playtime%", PlayerStatsUtil.getPlaytime(player))
                 .replace("%karamsmp_playtime_ticks%", String.valueOf(PlayerStatsUtil.getPlayTicks(player)))
-                .replace("%karamsmp_ping%", String.valueOf(PlayerStatsUtil.getPing(player)));
+                .replace("%karamsmp_ping%", String.valueOf(PlayerStatsUtil.getPing(player)))
+                .replace("%homes%", plugin.getHomeManager() == null ? "0" : String.valueOf(plugin.getHomeManager().getHomes(player).size()))
+                .replace("%max_homes%", plugin.getHomeManager() == null ? "0" : String.valueOf(plugin.getHomeManager().getMaxHomes(player)))
+                .replace("%karamsmp_homes%", plugin.getHomeManager() == null ? "0" : String.valueOf(plugin.getHomeManager().getHomes(player).size()))
+                .replace("%karamsmp_max_homes%", plugin.getHomeManager() == null ? "0" : String.valueOf(plugin.getHomeManager().getMaxHomes(player)))
+                .replace("%karamsmp_spawn_set%", plugin.getSpawnManager() == null ? "false" : String.valueOf(plugin.getSpawnManager().hasSpawn()));
 
         if (plugin.getScoreboardManager() != null) {
             replaced = replaced

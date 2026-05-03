@@ -1,10 +1,10 @@
 name: KaramSMP
-version: '0.7'
+version: '0.9.1'
 main: me.herex.karmsmp.KaramSMP
 api-version: '1.21'
 author: Herex._.7
 softdepend: [PlaceholderAPI]
-description: Adds /gmsp toggle, /nightvision, configurable TAB, ranks, placeholders, databases, regions, scoreboards with hex colors, join messages, and /discord.
+description: Adds /gmsp toggle, /nightvision, configurable TAB, ranks, placeholders, databases, regions, scoreboards with hex colors, join messages, homes GUI with database saving, spawn, double jump regions, /guide, /store, and /discord.
 commands:
   gmsp:
     description: Toggle yourself between spectator mode and survival mode.
@@ -30,6 +30,37 @@ commands:
       - dc
       - disc
       - discordserver
+  guide:
+    description: Shows the server guide link.
+    usage: /guide
+    aliases:
+      - karamsmpguide
+  store:
+    description: Shows the server store link.
+    usage: /store
+    aliases:
+      - shop
+      - karamsmpstore
+  home:
+    description: Opens your homes GUI or teleports to a home.
+    usage: /home [name]
+    aliases:
+      - homes
+  sethome:
+    description: Sets a new home.
+    usage: /sethome <name>
+  delhome:
+    description: Deletes one of your homes.
+    usage: /delhome <name>
+    aliases:
+      - deletehome
+      - removehome
+  spawn:
+    description: Teleport to the server spawn.
+    usage: /spawn
+  setspawn:
+    description: Set the server spawn.
+    usage: /setspawn
   rank:
     description: Manage KaramSMP ranks and player rank assignments.
     usage: /rank help
@@ -53,6 +84,12 @@ commands:
       - sb
       - karamsmpscoreboard
 permissions:
+  karamsmp.spawn.set:
+    description: Allows a player to set the server spawn.
+    default: op
+  karamsmp.homes.vip:
+    description: Example permission you can use in config.yml to give more homes.
+    default: false
   karamsmp.scoreboard.staff:
     description: Allows a player to see the staff scoreboard example.
     default: false
@@ -77,6 +114,7 @@ permissions:
       karamsmp.regions.admin: true
       karamsmp.regions.bypass: true
       karamsmp.scoreboards.admin: true
+      karamsmp.spawn.set: true
       karamsmp.helper.gmsp: true
       karamsmp.discord: true
   karamsmp.admin.ranks:

@@ -8,6 +8,8 @@
 # %karamsmp_region%, %karamsmp_regions%, %karamsmp_region_count%
 # %discord%, %discord_invite% can be used inside the Discord command message.
 # %kills%, %deaths%, %playtime%, %playtime_ticks%, %ping%
+# %homes%, %max_homes%, %karamsmp_homes%, %karamsmp_max_homes%
+# %karamsmp_spawn_set%
 # %karamsmp_kills%, %karamsmp_deaths%, %karamsmp_playtime%, %karamsmp_ping%
 
 # Database Configuration
@@ -32,7 +34,7 @@ database:
 # Text System
 # Removes hidden zero-width characters from fancy copied text so TAB/scoreboard does not display broken boxes.
 text:
-  remove-zero-width-characters: true
+  remove-zero-width-characters: false
 
 # Tab System
 tab:
@@ -46,7 +48,7 @@ tab:
     - ""
   footer:
     - ""
-    - "&3/🇩‌🇮‌🇸‌🇨‌🇴‌🇷‌🇩‌ &b/🇬‌🇺‌🇮‌🇩‌🇪‌ &3/🇸‌🇹‌🇴‌🇷‌🇪‌"
+    - "&#00D5FF/ᴅɪꜱᴄᴏʀᴅ &f/ɢᴜɪᴅᴇ &#00D5FF/ꜱᴛᴏʀᴇ"
 
 # Join Message System
 join-messages:
@@ -75,6 +77,33 @@ discord:
     - "&b%discord_invite%"
     - ""
   disabled-message: "&cThe Discord command is disabled."
+  no-permission-message: "&cYou don't have permission to use this command!"
+
+
+# Guide Command System
+guide:
+  enabled: true
+  permission: ""
+  url: "https://karamsmp.net/guide"
+  message:
+    - "&fKaram SMP Guide"
+    - ""
+    - "&b%guide_url%"
+    - ""
+  disabled-message: "&cThe guide command is disabled."
+  no-permission-message: "&cYou don't have permission to use this command!"
+
+# Store Command System
+store:
+  enabled: true
+  permission: ""
+  url: "https://store.karamsmp.net"
+  message:
+    - "&fKaram SMP Store"
+    - ""
+    - "&b%store_url%"
+    - ""
+  disabled-message: "&cThe store command is disabled."
   no-permission-message: "&cYou don't have permission to use this command!"
 
 # Night Vision Command
@@ -153,6 +182,7 @@ regions:
       fire-spread: false
       entry: true
       exit: true
+      double-jump: false
   available-flags:
     - "block-break"
     - "block-place"
@@ -167,6 +197,126 @@ regions:
     - "fire-spread"
     - "entry"
     - "exit"
+    - "double-jump"
+
+# Spawn System
+spawn:
+  enabled: true
+  data-file: "spawn.yml"
+  # New players will be teleported to /setspawn location on their first join.
+  teleport-first-join: true
+  # Keep false if you only want first-join spawn. Set true to spawn players every join.
+  teleport-on-join: false
+  join-teleport-delay-ticks: 2
+  messages:
+    only-players: "&cOnly players can use this command."
+    no-permission: "&cYou don't have permission to use this command!"
+    disabled: "&cThe spawn system is disabled."
+    not-set: "&cThe spawn has not been set yet."
+    set: "&aSpawn has been set."
+    teleported: "&aTeleported to spawn."
+
+# Double Jump System
+# Enable it inside a region using: /region flag <region> double-jump true
+double-jump:
+  enabled: true
+  allow-outside-regions: false
+  # If enabled, players can double jump around the /setspawn location even without a region.
+  spawn:
+    enabled: true
+    radius: 50.0
+  velocity-y: 0.9
+  velocity-forward: 0.55
+  cooldown-ticks: 10
+  sound:
+    name: "BLOCK_PRESSURE_PLATE_CLICK_ON"
+    volume: 1.0
+    pitch: 1.4
+
+# Home System
+homes:
+  enabled: true
+  data-file: "homes.yml"
+  # same-as-database means homes use database.type: sqlite/mysql/yaml.
+  storage:
+    type: "same-as-database"
+    sqlite-table: "player_homes"
+    mysql-table: ""
+  prefix: "&8• &bʜᴏᴍᴇ &8»"
+  max-homes: 5
+  teleport-delay-seconds: 5
+  # Give players more homes by permission if you want. Example: karamsmp.homes.vip: 10
+  permission-limits: {}
+  gui:
+    title: "&8• &bʏᴏᴜʀ ʜᴏᴍᴇs"
+    home-item:
+      material: "GRAY_BED"
+      name: "&e%home%"
+      lore:
+        - "&7ᴄʟɪᴄᴋ ᴛᴏ ᴛᴇʟᴇᴘᴏʀᴛ"
+    delete-item:
+      material: "LIGHT_BLUE_DYE"
+      name: "&cᴅᴇʟᴇᴛᴇ"
+      lore:
+        - "&7ᴄʟɪᴄᴋ ᴛᴏ ᴅᴇʟᴇᴛᴇ &e%home%"
+    free-slot:
+      material: "GRAY_BED"
+      name: "&7ꜰʀᴇᴇ sʟᴏᴛ"
+      lore:
+        - "&7ᴄʟɪᴄᴋ ᴛᴏ sᴇᴛ ᴀ ɴᴇᴡ ʜᴏᴍᴇ"
+    empty-delete:
+      material: "GRAY_DYE"
+      name: "&7ɴᴏ ʜᴏᴍᴇ"
+      lore:
+        - "&7ɴᴏ ʜᴏᴍᴇ sᴇᴛ ʜᴇʀᴇ!"
+    locked-slot:
+      material: "RED_BED"
+  confirm-delete:
+    title: "&8ᴄᴏɴꜰɪʀᴍ ᴅᴇʟᴇᴛᴇ"
+    cancel-slot: 11
+    home-slot: 13
+    confirm-slot: 15
+    cancel-item:
+      material: "RED_STAINED_GLASS_PANE"
+      name: "&cᴄᴀɴᴄᴇʟ"
+      lore:
+        - "&7ᴄʟɪᴄᴋ ᴛᴏ ɢᴏ ʙᴀᴄᴋ"
+    home-item:
+      material: "GRAY_BED"
+      name: "&e%home%"
+      lore:
+        - "&7ʏᴏᴜ ᴀʀᴇ ᴅᴇʟᴇᴛɪɴɢ ᴛʜɪꜱ ʜᴏᴍᴇ"
+    confirm-item:
+      material: "LIME_STAINED_GLASS_PANE"
+      name: "&aᴄᴏɴꜰɪʀᴍ"
+      lore:
+        - "&7ᴄʟɪᴄᴋ ᴛᴏ ᴅᴇʟᴇᴛᴇ &e%home%"
+    confirm:
+      sound: "ENTITY_PLAYER_LEVELUP"
+      volume: 1.0
+      pitch: 1.0
+      give-exp-levels: 0
+    cancel:
+      sound: "BLOCK_PRESSURE_PLATE_CLICK_ON"
+      volume: 1.0
+      pitch: 1.0
+  messages:
+    only-players: "&cOnly players can use this command."
+    disabled: "&cHomes are disabled."
+    invalid-name: "{prefix} &cᴘʟᴇᴀꜱᴇ ᴜꜱᴇ ᴏɴʟʏ ʟᴇᴛᴛᴇʀꜱ, ɴᴜᴍʙᴇʀꜱ, _ ᴀɴᴅ -."
+    max-homes: "{prefix} &cʏᴏᴜ ᴀʟʀᴇᴀᴅʏ ʜᴀᴠᴇ ᴛʜᴇ ᴍᴀxɪᴍᴜᴍ ᴏꜰ &e%max% &cʜᴏᴍᴇs!"
+    already-exists: "{prefix} &cᴀ ʜᴏᴍᴇ ɴᴀᴍᴇᴅ &e%home% &cᴀʟʀᴇᴀᴅʏ ᴇxɪsᴛs!"
+    not-found: "{prefix} &cɴᴏ ʜᴏᴍᴇ ɴᴀᴍᴇᴅ &e%home% &cꜰᴏᴜɴᴅ!"
+    set: "{prefix} &aʜᴏᴍᴇ &e%home% &aʜᴀs ʙᴇᴇɴ sᴇᴛ! (&7%used%/&7%max% &aᴜsᴇᴅ)"
+    deleted: "{prefix} &aʜᴏᴍᴇ &e%home% &aʜᴀs ʙᴇᴇɴ ᴅᴇʟᴇᴛᴇᴅ."
+    enter-name: "{prefix} &7ᴘʟᴇᴀꜱᴇ ᴇɴᴛᴇʀ ᴀ ɴᴀᴍᴇ ꜰᴏʀ ʏᴏᴜʀ ɴᴇᴡ ʜᴏᴍᴇ (&ccancel&7 ᴛᴏ ᴄᴀɴᴄᴇʟ):"
+    cancelled: "{prefix} &cʜᴏᴍᴇ sᴇᴛᴛɪɴɢ ᴄᴀɴᴄᴇʟʟᴇᴅ."
+    teleport-start: "{prefix} &7ᴛᴇʟᴇᴘᴏʀᴛɪɴɢ ɪɴ &b%seconds% &7sᴇᴄᴏɴᴅs ᴛᴏ ʜᴏᴍᴇ &e%home%&7. &8(ᴅᴏɴ'ᴛ ᴍᴏᴠᴇ!)"
+    teleport-cancelled: "{prefix} &cᴛᴇʟᴇᴘᴏʀᴛ ᴄᴀɴᴄᴇʟʟᴇᴅ ʙᴇᴄᴀᴜꜱᴇ ʏᴏᴜ ᴍᴏᴠᴇᴅ!"
+    teleported: "{prefix} &aᴛᴇʟᴇᴘᴏʀᴛᴇᴅ ᴛᴏ ʜᴏᴍᴇ &e%home%&a."
+    actionbar-countdown: "&bᴛᴇʟᴇᴘᴏʀᴛɪɴɢ ɪɴ &f%seconds% &bꜱᴇᴄᴏɴᴅꜱ..."
+    actionbar-cancelled: "&cᴛᴇʟᴇᴘᴏʀᴛ ᴄᴀɴᴄᴇʟʟᴇᴅ (ᴍᴏᴠᴇᴅ)!"
+    actionbar-teleported: "&aᴛᴇʟᴇᴘᴏʀᴛᴇᴅ!"
 
 # Rank behavior
 ranks-settings:
